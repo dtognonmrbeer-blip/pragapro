@@ -23,22 +23,41 @@
 html,body{height:100%;overflow:hidden}
 body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:var(--tx);display:flex;flex-direction:column;background:#111}
 
+/* LOGIN */
+#login-screen{position:fixed;inset:0;background:linear-gradient(160deg,#0d2a0d,#1a3a1a,#0d2010);display:flex;align-items:center;justify-content:center;z-index:999;padding:24px}
+#login-box{background:#fff;border-radius:18px;padding:28px 22px 24px;width:100%;max-width:340px;box-shadow:0 8px 32px rgba(0,0,0,.4)}
+#login-box .logo{font-size:36px;text-align:center;margin-bottom:4px}
+#login-box h2{text-align:center;font-size:18px;font-weight:700;color:var(--gd);margin-bottom:4px}
+#login-box p{text-align:center;font-size:11px;color:var(--mu);margin-bottom:20px}
+#login-box input{width:100%;border:1.5px solid var(--bd);border-radius:9px;padding:11px 13px;font-size:14px;margin-bottom:10px;font-family:inherit;color:var(--tx);background:#fff;transition:border-color .2s}
+#login-box input:focus{outline:none;border-color:var(--gm)}
+#login-box .login-btn{width:100%;padding:12px;background:var(--gm);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;margin-top:4px}
+#login-box .login-err{color:#b92929;font-size:12px;text-align:center;margin-top:8px;display:none}
+
 /* HEADER */
-#header{background:var(--gd);color:#fff;padding:9px 13px;display:flex;align-items:center;gap:9px;flex-shrink:0;z-index:10}
+#header{background:var(--gd);color:#fff;padding:8px 12px;display:flex;align-items:center;gap:8px;flex-shrink:0}
 #header h1{font-size:14px;font-weight:700}
 #header p{font-size:10px;opacity:.6;margin-top:1px}
-.gps-badge{margin-left:auto;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.22);border-radius:20px;padding:3px 9px;font-size:10px;display:flex;align-items:center;gap:5px;white-space:nowrap;flex-shrink:0}
-.gpsdot{width:7px;height:7px;border-radius:50%;background:#4caf50;flex-shrink:0}
+.gps-badge{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.22);border-radius:20px;padding:3px 8px;font-size:10px;display:flex;align-items:center;gap:4px;white-space:nowrap}
+.gpsdot{width:6px;height:6px;border-radius:50%;background:#4caf50;flex-shrink:0}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
 .gpsdot.blink{animation:blink 1.4s infinite}
+.logout-btn{margin-left:auto;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:8px;color:#fff;font-size:10px;padding:3px 8px;cursor:pointer;white-space:nowrap;flex-shrink:0}
 
-/* SYNC STATUS */
-#sync-bar{background:#0c4470;color:#fff;font-size:11px;padding:4px 12px;display:flex;align-items:center;gap:8px;flex-shrink:0}
-#sync-dot{width:8px;height:8px;border-radius:50%;background:#f39c12;flex-shrink:0}
+/* SYNC BAR */
+#sync-bar{background:#0c3a60;color:#fff;font-size:10px;padding:4px 12px;display:flex;align-items:center;gap:7px;flex-shrink:0}
+#sync-dot{width:7px;height:7px;border-radius:50%;background:#f39c12;flex-shrink:0}
 #sync-dot.ok{background:#4caf50}
 #sync-dot.err{background:#c0392b}
-#sync-txt{flex:1;font-size:10px}
-#user-badge{background:rgba(255,255,255,.15);border-radius:12px;padding:2px 9px;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap}
+#sync-txt{flex:1}
+#user-tag{font-weight:700;color:#a8d8a8}
+
+/* FILTER BAR */
+#filter-bar{background:#1e4a1e;padding:6px 10px;display:flex;align-items:center;gap:7px;flex-shrink:0}
+#filter-bar label{color:rgba(255,255,255,.7);font-size:10px;font-weight:700;white-space:nowrap}
+#faz-filter{flex:1;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:8px;color:#fff;font-size:11px;font-weight:600;padding:4px 8px;cursor:pointer;min-width:0}
+#faz-filter option{background:#1a3a1a;color:#fff}
+#btn-clear-filter{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);border-radius:7px;color:#fff;font-size:11px;padding:4px 9px;cursor:pointer;white-space:nowrap;flex-shrink:0;display:none}
 
 /* OFFLINE */
 #offline-banner{background:#7b4f00;color:#ffe08a;font-size:11px;text-align:center;padding:4px 10px;flex-shrink:0;display:none}
@@ -46,31 +65,33 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:var(--tx);d
 /* MAP */
 #map-wrap{flex:1;position:relative;min-height:0}
 #map{width:100%;height:100%}
-.mapboxgl-popup-content{border-radius:10px;padding:12px 14px;box-shadow:0 3px 14px rgba(0,0,0,.25);min-width:170px;font-size:12px}
+.mapboxgl-popup-content{border-radius:10px;padding:11px 13px;box-shadow:0 3px 14px rgba(0,0,0,.25);min-width:175px;font-size:12px}
 .mapboxgl-popup-content h4{font-size:13px;font-weight:700;margin-bottom:5px;color:var(--gd)}
-.mapboxgl-popup-content .prow{display:flex;gap:5px;margin:2px 0;align-items:baseline}
-.mapboxgl-popup-content .plbl{font-size:10px;color:#888;min-width:55px}
-.mapboxgl-popup-content .pval{font-size:11px;font-weight:600}
-.mapboxgl-popup-content .pbadge{display:inline-block;border-radius:10px;padding:2px 8px;font-size:10px;font-weight:700;margin-top:5px}
-.mapboxgl-popup-content .pvar{font-size:10px;color:#666;font-style:italic;margin-top:3px}
-.mapboxgl-popup-content .ptecnico{font-size:10px;color:#1a6bb5;margin-top:4px;font-weight:600}
-.mapboxgl-popup-content img{width:100%;border-radius:6px;margin-top:6px;max-height:80px;object-fit:cover}
+.pp{display:flex;gap:5px;margin:2px 0;align-items:baseline}
+.pl{font-size:10px;color:#888;min-width:52px}
+.pv{font-size:11px;font-weight:600}
+.pbadge{display:inline-block;border-radius:10px;padding:2px 8px;font-size:10px;font-weight:700;margin-top:4px}
+.ptec{font-size:10px;color:var(--blue);margin-top:3px;font-weight:600}
+.pac-status{display:inline-flex;align-items:center;gap:4px;border-radius:10px;padding:2px 8px;font-size:10px;font-weight:700;margin-top:4px}
+.pac-status.pending{background:#fff3d0;color:#9a6000}
+.pac-status.done{background:#e8f8e8;color:#1e7e1e}
+.popup-conclude-btn{width:100%;margin-top:8px;padding:7px;background:var(--gm);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;display:none}
 
 /* FABS */
-.fab{position:absolute;z-index:5;background:#fff;border:1px solid var(--bd);border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:17px;box-shadow:0 2px 8px rgba(0,0,0,.25);user-select:none}
+.fab{position:absolute;z-index:5;background:#fff;border:1px solid var(--bd);border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:17px;box-shadow:0 2px 8px rgba(0,0,0,.25)}
 #fab-me{bottom:14px;right:13px}
 #fab-style{bottom:62px;right:13px}
 
 /* TALHAO TOOLTIP */
-#talhao-box{background:rgba(26,58,26,.92);color:#fff;font-size:11px;padding:6px 11px;border-radius:9px;position:absolute;bottom:14px;left:50%;transform:translateX(-50%);z-index:5;display:none;white-space:nowrap;pointer-events:none;backdrop-filter:blur(4px)}
-#talhao-box .tb-faz{font-weight:700;font-size:12px}
-#talhao-box .tb-info{opacity:.8;margin-top:1px}
+#talhao-box{background:rgba(26,58,26,.92);color:#fff;font-size:11px;padding:5px 11px;border-radius:9px;position:absolute;bottom:14px;left:50%;transform:translateX(-50%);z-index:5;display:none;white-space:nowrap;pointer-events:none}
+#tb-faz{font-weight:700;font-size:11px}
+#tb-info{opacity:.8;font-size:10px;margin-top:1px}
 
 /* STATUS */
 #status-bar{background:var(--gd);color:rgba(255,255,255,.7);font-size:10px;text-align:center;padding:3px 8px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-/* BOTTOM PANEL */
-.bottom{background:#fff;border-top:1px solid var(--bd);flex-shrink:0;height:255px;display:flex;flex-direction:column}
+/* BOTTOM */
+.bottom{background:#fff;border-top:1px solid var(--bd);flex-shrink:0;height:268px;display:flex;flex-direction:column}
 .tabs{display:flex;border-bottom:1px solid var(--bd);flex-shrink:0}
 .tab{flex:1;padding:8px 2px;font-size:10px;font-weight:700;text-align:center;cursor:pointer;color:var(--mu);border:none;background:none;border-bottom:2.5px solid transparent}
 .tab.on{color:var(--gm);border-bottom-color:var(--gm)}
@@ -78,9 +99,9 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:var(--tx);d
 .tc.on{display:block}
 
 /* LOC BOX */
-#loc-box{background:#e8f4e8;border:1px solid #b3d9b3;border-radius:8px;padding:7px 10px;margin-bottom:7px;display:none}
-#loc-box .lbt{font-weight:700;color:var(--gm);font-size:11px;margin-bottom:1px}
-#loc-box .lbi{color:#1a4a1a;font-size:10px;line-height:1.5}
+#loc-box{background:#e8f4e8;border:1px solid #b3d9b3;border-radius:8px;padding:6px 10px;margin-bottom:7px;display:none}
+.lbt{font-weight:700;color:var(--gm);font-size:11px;margin-bottom:1px}
+.lbi{color:#1a4a1a;font-size:10px;line-height:1.5}
 
 /* CATS & PESTS */
 .cats{display:flex;gap:5px;margin-bottom:7px;overflow-x:auto;padding-bottom:2px}
@@ -88,7 +109,7 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:var(--tx);d
 .chip{border:1px solid var(--bd);border-radius:14px;padding:3px 10px;font-size:11px;cursor:pointer;background:#fff;white-space:nowrap;flex-shrink:0;font-weight:600;color:var(--mu)}
 .chip.on{background:var(--gm);color:#fff;border-color:var(--gm)}
 .pg{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:7px}
-.pb{border:1.5px solid var(--bd);border-radius:9px;padding:7px 5px;cursor:pointer;background:#fff;text-align:center;position:relative;transition:border-color .15s}
+.pb{border:1.5px solid var(--bd);border-radius:9px;padding:7px 5px;cursor:pointer;background:#fff;text-align:center;position:relative}
 .pb:active{transform:scale(.96)}
 .pb.on{border-color:var(--gm);background:#f0f8f0}
 .pb .ic{font-size:19px;display:block;margin-bottom:2px}
@@ -104,12 +125,20 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:var(--tx);d
 .sb.am{border-color:#c87d00;background:#fffbf0;color:#c87d00}
 .sb.al{border-color:#1e8040;background:#f0fbf0;color:#1e8040}
 
+/* AÇÃO */
+.acao-section{margin-bottom:7px}
+.acao-label{font-size:10px;font-weight:700;color:var(--mu);margin-bottom:4px;letter-spacing:.4px}
+.acao-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:5px}
+.acao-opt{border:1.5px solid var(--bd);border-radius:8px;padding:5px 4px;cursor:pointer;background:#fff;text-align:center;font-size:10px;font-weight:600;color:var(--tx);transition:all .15s}
+.acao-opt.on{border-color:var(--blue);background:#f0f6ff;color:var(--blue)}
+.acao-outro{width:100%;border:1px solid var(--bd);border-radius:8px;padding:6px 8px;font-size:12px;font-family:inherit;display:none;margin-top:3px;color:var(--tx)}
+
 /* PHOTO */
 .photo-row{display:flex;align-items:center;gap:7px;margin-bottom:7px}
 .photo-btn{border:1.5px dashed var(--gm);border-radius:8px;padding:6px 10px;font-size:11px;color:var(--gm);cursor:pointer;background:none;font-weight:600}
 #photo-thumb{width:42px;height:42px;border-radius:7px;object-fit:cover;border:1px solid var(--bd);display:none}
 .plbl{font-size:10px;color:var(--mu)}
-textarea{width:100%;border:1px solid var(--bd);border-radius:8px;padding:6px 8px;font-size:12px;resize:none;font-family:inherit;height:44px;margin-bottom:7px;color:var(--tx)}
+textarea{width:100%;border:1px solid var(--bd);border-radius:8px;padding:6px 8px;font-size:12px;resize:none;font-family:inherit;height:42px;margin-bottom:7px;color:var(--tx)}
 .abtn{width:100%;padding:11px;background:var(--gm);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px}
 .abtn:disabled{background:#aaa;cursor:default}
 .gbtn{width:100%;margin-top:5px;padding:7px;border:1.5px dashed var(--gm);border-radius:8px;background:none;color:var(--gm);font-size:11px;font-weight:700;cursor:pointer}
@@ -118,16 +147,20 @@ textarea{width:100%;border:1px solid var(--bd);border-radius:8px;padding:6px 8px
 .ri{background:var(--cream);border-radius:8px;padding:7px 9px;display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;cursor:pointer}
 .rdot{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:2px}
 .rinfo{flex:1;min-width:0}
-.rnm{font-weight:700;font-size:11px}
+.rnm{font-weight:700;font-size:11px;display:flex;align-items:center;gap:5px}
+.rid{font-size:9px;background:#e0e0e0;border-radius:5px;padding:1px 5px;color:#555;font-weight:700;font-family:monospace}
 .rtag{color:#1a5a1a;font-size:10px;font-weight:600;margin-top:1px}
 .rlc{color:var(--mu);font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rtec{color:var(--blue);font-size:10px}
+.rac{font-size:10px;font-weight:600;margin-top:2px}
+.rac.pending{color:#9a6000}
+.rac.done{color:#1e7e1e}
 .rtime{font-size:10px;color:var(--mu);white-space:nowrap;flex-shrink:0}
 .rphoto{width:32px;height:32px;border-radius:5px;object-fit:cover;flex-shrink:0}
-.rdel{background:none;border:none;color:#b92929;cursor:pointer;font-size:13px;padding:0 0 0 3px}
-.sync-icon{font-size:11px;flex-shrink:0}
+.rdel{background:none;border:none;color:#b92929;cursor:pointer;font-size:13px;padding:0}
+.rconclude{background:var(--gm);border:none;color:#fff;cursor:pointer;font-size:10px;font-weight:700;border-radius:6px;padding:3px 7px;margin-top:3px;display:none}
 
-/* STATS */
+/* EXPORT */
 .sgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px}
 .sbox{background:var(--cream);border-radius:8px;padding:9px 7px;text-align:center}
 .sn{font-size:20px;font-weight:700;color:var(--gm)}
@@ -139,7 +172,6 @@ textarea{width:100%;border:1px solid var(--bd);border-radius:8px;padding:6px 8px
 .ebtn strong{display:block;font-size:11px;font-weight:700;margin-bottom:1px}
 .ebtn span{font-size:10px;color:var(--mu)}
 .elabel{font-size:10px;font-weight:700;color:var(--mu);margin-bottom:5px;letter-spacing:.4px}
-.ibtnw{width:100%;padding:8px;border:1.5px dashed #888;border-radius:8px;background:none;color:var(--mu);font-size:11px;font-weight:700;cursor:pointer;margin-top:3px}
 
 /* MODAL */
 .modal-wrap{display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.55);z-index:20;align-items:flex-end;justify-content:center}
@@ -151,16 +183,10 @@ textarea{width:100%;border:1px solid var(--bd);border-radius:8px;padding:6px 8px
 .mrow button{flex:1;padding:10px;border-radius:9px;border:1px solid var(--bd);cursor:pointer;font-size:12px;font-weight:700;background:#fff;color:var(--tx)}
 .mrow .pri{background:var(--gm);color:#fff;border-color:var(--gm)}
 
-/* USER MODAL */
-#user-modal .modal{text-align:center;padding:24px 20px 32px}
-#user-modal .modal h3{font-size:16px;margin-bottom:6px}
-#user-modal .modal p{font-size:12px;color:var(--mu);margin-bottom:14px}
-#user-modal .modal input{font-size:15px;text-align:center;font-weight:600}
-
-/* MAP STYLE TOGGLE */
+/* STYLE PANEL */
 #style-panel{position:absolute;bottom:110px;right:60px;z-index:5;background:#fff;border:1px solid var(--bd);border-radius:10px;padding:9px 12px;box-shadow:0 2px 10px rgba(0,0,0,.2);display:none}
 #style-panel h4{font-size:11px;font-weight:700;margin-bottom:6px;color:var(--mu)}
-.style-opt{display:flex;align-items:center;gap:7px;margin-bottom:4px;cursor:pointer;font-size:12px;padding:3px 0}
+.style-opt{display:flex;align-items:center;gap:7px;margin-bottom:4px;cursor:pointer;font-size:12px;padding:2px 0}
 .style-opt input{accent-color:var(--gm);width:14px;height:14px;cursor:pointer}
 
 .empty{text-align:center;padding:20px 14px;color:var(--mu);font-size:11px;line-height:1.7}
@@ -169,22 +195,46 @@ input[type=file]{display:none}
 </head>
 <body>
 
+<!-- LOGIN -->
+<div id="login-screen">
+  <div id="login-box">
+    <div class="logo">🌲</div>
+    <h2>AgroMapa Pro</h2>
+    <p>Mapeamento de Pragas · Silvicultura</p>
+    <input type="text" id="li-user" placeholder="Usuário" autocomplete="username" autocapitalize="none">
+    <input type="password" id="li-pass" placeholder="Senha" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">Entrar</button>
+    <div class="login-err" id="login-err">Usuário ou senha incorretos</div>
+  </div>
+</div>
+
+<!-- HEADER -->
 <div id="header">
-  <div style="font-size:21px">🌲</div>
+  <div style="font-size:20px">🌲</div>
   <div><h1>AgroMapa Pro</h1><p>Silvicultura · Tempo real</p></div>
   <div class="gps-badge">
     <div class="gpsdot blink" id="gpsdot"></div>
     <span id="gpslbl">GPS...</span>
   </div>
+  <button class="logout-btn" onclick="doLogout()">Sair</button>
 </div>
 
 <div id="sync-bar">
   <div id="sync-dot"></div>
-  <span id="sync-txt">Conectando ao servidor...</span>
-  <span id="user-badge" onclick="openUserModal()">👤 —</span>
+  <span id="sync-txt">Conectando...</span>
+  <span id="user-tag"></span>
 </div>
 
-<div id="offline-banner">⚡ Offline — registros salvos localmente, sincronização quando voltar</div>
+<!-- FILTER BAR -->
+<div id="filter-bar">
+  <label>🌾 FAZENDA</label>
+  <select id="faz-filter" onchange="applyFilter()">
+    <option value="">— todas —</option>
+  </select>
+  <button id="btn-clear-filter" onclick="clearFilter()">✕ Limpar</button>
+</div>
+
+<div id="offline-banner">⚡ Offline — dados sincronizados ao reconectar</div>
 
 <div id="map-wrap">
   <div id="map"></div>
@@ -197,8 +247,8 @@ input[type=file]{display:none}
     <label class="style-opt"><input type="radio" name="mstyle" value="outdoors" onchange="setMapStyle(this.value)"> 🌄 Terreno</label>
   </div>
   <div id="talhao-box">
-    <div class="tb-faz" id="tb-faz"></div>
-    <div class="tb-info" id="tb-info"></div>
+    <div id="tb-faz"></div>
+    <div id="tb-info"></div>
   </div>
 </div>
 
@@ -211,6 +261,7 @@ input[type=file]{display:none}
     <button class="tab" onclick="go('exp',2)">📤 Exportar</button>
   </div>
 
+  <!-- REGISTRAR -->
   <div class="tc on" id="tc-reg">
     <div id="loc-box">
       <div class="lbt">📍 Localização detectada</div>
@@ -224,6 +275,11 @@ input[type=file]{display:none}
       <div class="sb am" id="sb-m" onclick="setSev('m')">🟡 Média</div>
       <div class="sb" id="sb-l" onclick="setSev('l')">🟢 Baixa</div>
     </div>
+    <div class="acao-section">
+      <div class="acao-label">AÇÃO NECESSÁRIA</div>
+      <div class="acao-grid" id="acao-grid"></div>
+      <input type="text" class="acao-outro" id="acao-outro" placeholder="Descreva a ação...">
+    </div>
     <div class="photo-row">
       <button class="photo-btn" onclick="document.getElementById('photo-in').click()">📷 Foto</button>
       <img id="photo-thumb" alt="foto">
@@ -235,17 +291,21 @@ input[type=file]{display:none}
     <button class="gbtn" onclick="openModal()">＋ Nova praga personalizada</button>
   </div>
 
+  <!-- OCORRÊNCIAS -->
   <div class="tc" id="tc-rec">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-      <span style="font-size:11px;font-weight:700;color:var(--mu)">TODAS AS OCORRÊNCIAS</span>
-      <label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer">
-        <input type="checkbox" id="chk-myfaz" onchange="renderRec()" style="accent-color:var(--gm)">
-        Só minha fazenda
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px;flex-wrap:wrap">
+      <span style="font-size:10px;font-weight:700;color:var(--mu)">FILTRAR:</span>
+      <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer">
+        <input type="checkbox" id="chk-pending" onchange="renderRec()" style="accent-color:var(--amber)"> ⏳ Pendentes
+      </label>
+      <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer">
+        <input type="checkbox" id="chk-mine" onchange="renderRec()" style="accent-color:var(--blue)"> Só minhas
       </label>
     </div>
     <div id="rec-list"></div>
   </div>
 
+  <!-- EXPORTAR -->
   <div class="tc" id="tc-exp">
     <div class="sgrid" id="sgrid"></div>
     <div class="elabel">EXPORTAR</div>
@@ -256,18 +316,6 @@ input[type=file]{display:none}
     <div class="egrid">
       <div class="ebtn" onclick="expJSON()"><span class="eic2">🗂️</span><strong>JSON</strong><span>Backup local</span></div>
       <div class="ebtn" onclick="expReport()"><span class="eic2">📄</span><strong>Relatório</strong><span>Texto / impressão</span></div>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL: NOME DO TÉCNICO -->
-<div class="modal-wrap on" id="user-modal">
-  <div class="modal">
-    <h3>👷 Identificação do Técnico</h3>
-    <p>Seu nome aparecerá nos registros e será visto por toda a equipe</p>
-    <input type="text" id="user-name-input" placeholder="Seu nome (ex: João Silva)" maxlength="40" onkeydown="if(event.key==='Enter')saveUser()">
-    <div class="mrow">
-      <button class="pri" onclick="saveUser()">Entrar no app</button>
     </div>
   </div>
 </div>
@@ -290,13 +338,63 @@ input[type=file]{display:none}
 
 <script>
 // ============================================================
-//  CONFIGURAÇÃO — substitua com suas credenciais do Supabase
+//  CONFIG
 // ============================================================
 const SUPABASE_URL  = 'https://sbgtfrcxnmmqjxhhdgcs.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNiZ3RmcmN4bm1tcWp4aGhkZ2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2NDA5NzcsImV4cCI6MjA5NTIxNjk3N30.hGeED7lDbsJtoaicACyd_JOhzG7lpt5CZti5a2kkjW8';
-
 const MAPBOX_TOKEN  = 'pk.eyJ1IjoiZGFuaWVsdG9nbm9uIiwiYSI6ImNtaTR6NHRuejJmMjYycnExMTI5eng0dGcifQ.JWDELWm5lVd3642Oaot49A';
 const TILESET_ID    = 'danieltognon.dfd0jjk7';
+const TILESET_LAYER = 'Cerradinho-Maio2026-8p9lkf';
+
+// ============================================================
+//  USUÁRIOS (hash simples — não use em app bancário!)
+// ============================================================
+const USERS = {
+  'daniel':   {pass:'10221',   role:'supervisor'},
+  'juliana':  {pass:'akemi',   role:'supervisor'},
+  'artur':    {pass:'barbosa', role:'tecnico'},
+  'renata':   {pass:'paiva',   role:'tecnico'},
+  'joaopaulo':{pass:'oliveira',role:'tecnico'},
+  'ryan':     {pass:'ryan',    role:'tecnico'},
+};
+const SUPERVISORS = ['daniel','juliana'];
+
+let currentUser = JSON.parse(sessionStorage.getItem('am_user')||'null');
+let isSupervisor = false;
+
+// ============================================================
+//  LOGIN
+// ============================================================
+function doLogin(){
+  const u = document.getElementById('li-user').value.trim().toLowerCase();
+  const p = document.getElementById('li-pass').value;
+  const usr = USERS[u];
+  if(usr && usr.pass === p){
+    currentUser = {login:u, role:usr.role};
+    sessionStorage.setItem('am_user', JSON.stringify(currentUser));
+    isSupervisor = SUPERVISORS.includes(u);
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('user-tag').textContent = '👤 '+u+(isSupervisor?' ⭐':'');
+    initApp();
+  } else {
+    document.getElementById('login-err').style.display='block';
+    document.getElementById('li-pass').value='';
+  }
+}
+
+function doLogout(){
+  sessionStorage.removeItem('am_user');
+  location.reload();
+}
+
+// Auto-login se sessão ainda ativa
+if(currentUser){
+  isSupervisor = SUPERVISORS.includes(currentUser.login);
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('user-tag').textContent = '👤 '+currentUser.login+(isSupervisor?' ⭐':'');
+}
+
+document.getElementById('li-pass').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
 
 // ============================================================
 //  PRAGAS
@@ -324,150 +422,197 @@ const DP=[
 function loadPests(){return[...DP,...JSON.parse(localStorage.getItem('am_cpests')||'[]')];}
 let pests=loadPests();
 
+// AÇÕES
+const ACOES = ['Aplicar formicida','Roçada','Armadilha','Isca tóxica','Monitoramento','Outro'];
+
 // ============================================================
-//  ESTADO GLOBAL
+//  ESTADO
 // ============================================================
-let recs=[];           // vindos do Supabase + fila offline
-let offlineQueue=JSON.parse(localStorage.getItem('am_offline')||'[]');
-let selP=null,selSev='m',photoData=null;
-let uLat=null,uLng=null,myMarker=null;
+let recs=[], offlineQueue=JSON.parse(localStorage.getItem('am_offline')||'[]');
+let selP=null, selSev='m', photoData=null, selAcao=null;
+let uLat=null, uLng=null, myMarker=null;
 let activeCat='Todos';
 let currentTalhao=null;
-let supaClient=null;
-let mapReady=false;
-let userName=localStorage.getItem('am_username')||'';
-let mapInstance=null;
-let markersMap={};   // id -> mapboxgl.Marker
+let supaClient=null, mapInstance=null, mapReady=false;
+let markersMap={};
+let activeFilter=''; // TAG_INST_F atual
+let seqCounter=0;    // contador local para ID sequencial
+
 const CATS=['Todos','Formigas','Lagartas','Besouros','Percevejos','Fungos','Outros'];
 const SL={h:'Alta',m:'Média',l:'Baixa'};
 const SC={h:'#c0392b',m:'#e8a020',l:'#27ae60'};
-
-// ============================================================
-//  USER
-// ============================================================
-function openUserModal(){document.getElementById('user-modal').classList.add('on');setTimeout(()=>document.getElementById('user-name-input').focus(),100);}
-function saveUser(){
-  const nm=document.getElementById('user-name-input').value.trim();
-  if(!nm){alert('Informe seu nome.');return;}
-  userName=nm;localStorage.setItem('am_username',nm);
-  document.getElementById('user-modal').classList.remove('on');
-  document.getElementById('user-badge').textContent='👤 '+nm;
-}
-if(userName){
-  document.getElementById('user-modal').classList.remove('on');
-  document.getElementById('user-badge').textContent='👤 '+userName;
-  document.getElementById('user-name-input').value=userName;
-}
-
-// ============================================================
-//  SUPABASE
-// ============================================================
-function initSupabase(){
-  if(false){
-    setSyncStatus('warn','⚠️ Supabase não configurado — modo local');
-    loadLocalRecs();return;
-  }
-  try{
-    supaClient=supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
-    loadFromSupabase();
-    subscribeRealtime();
-  }catch(e){
-    setSyncStatus('err','Erro ao conectar Supabase');
-    loadLocalRecs();
-  }
-}
-
-async function loadFromSupabase(){
-  try{
-    const {data,error}=await supaClient.from('ocorrencias').select('*').order('created_at',{ascending:false}).limit(500);
-    if(error) throw error;
-    recs=data||[];
-    renderAllMarkers();
-    renderRec();
-    setSyncStatus('ok','🟢 Conectado · '+recs.length+' ocorrências');
-    // Sincronizar fila offline
-    if(offlineQueue.length) flushOfflineQueue();
-  }catch(e){
-    setSyncStatus('err','Sem conexão — dados locais');
-    loadLocalRecs();
-  }
-}
-
-function subscribeRealtime(){
-  if(!supaClient) return;
-  supaClient
-    .channel('ocorrencias-changes')
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'ocorrencias'},payload=>{
-      const rec=payload.new;
-      // Evitar duplicar o próprio registro
-      if(!recs.find(r=>r.id===rec.id)){
-        recs.unshift(rec);
-        addMarkerToMap(rec);
-        renderRec();
-        setSyncStatus('ok','🟢 Novo registro: '+rec.pest_name+' ('+rec.tecnico+')');
-      }
-    })
-    .on('postgres_changes',{event:'DELETE',schema:'public',table:'ocorrencias'},payload=>{
-      const id=payload.old.id;
-      recs=recs.filter(r=>r.id!==id);
-      if(markersMap[id]){markersMap[id].remove();delete markersMap[id];}
-      renderRec();
-    })
-    .subscribe(status=>{
-      if(status==='SUBSCRIBED') setSyncStatus('ok','🟢 Tempo real ativo');
-      if(status==='CHANNEL_ERROR') setSyncStatus('err','Erro de conexão');
-    });
-}
-
-async function saveToSupabase(rec){
-  if(!supaClient) return false;
-  try{
-    const {error}=await supaClient.from('ocorrencias').insert([rec]);
-    if(error) throw error;
-    return true;
-  }catch(e){
-    return false;
-  }
-}
-
-async function deleteFromSupabase(id){
-  if(!supaClient) return;
-  await supaClient.from('ocorrencias').delete().eq('id',id);
-}
-
-async function flushOfflineQueue(){
-  if(!supaClient||!offlineQueue.length) return;
-  const toSync=[...offlineQueue];
-  for(const rec of toSync){
-    const ok=await saveToSupabase(rec);
-    if(ok) offlineQueue=offlineQueue.filter(r=>r.id!==rec.id);
-  }
-  localStorage.setItem('am_offline',JSON.stringify(offlineQueue));
-  if(!offlineQueue.length) setSyncStatus('ok','🟢 Fila offline sincronizada!');
-}
-
-function loadLocalRecs(){
-  recs=JSON.parse(localStorage.getItem('am_recs')||'[]');
-  renderAllMarkers();renderRec();
-}
-
-function setSyncStatus(state,msg){
-  const dot=document.getElementById('sync-dot');
-  dot.className='';
-  if(state==='ok') dot.classList.add('ok');
-  else if(state==='err') dot.classList.add('err');
-  document.getElementById('sync-txt').textContent=msg;
-}
-
-// ============================================================
-//  MAPBOX
-// ============================================================
 const MAP_STYLES={
   satellite:'mapbox://styles/mapbox/satellite-streets-v12',
   streets:'mapbox://styles/mapbox/streets-v12',
   outdoors:'mapbox://styles/mapbox/outdoors-v12',
 };
 
+// ============================================================
+//  INIT APP (após login)
+// ============================================================
+function initApp(){
+  renderAcoes();
+  renderCats();
+  renderPests();
+  initMap();
+  requestGPS();
+  initSupabase();
+}
+
+if(currentUser) initApp();
+
+// ============================================================
+//  AÇÕES UI
+// ============================================================
+function renderAcoes(){
+  document.getElementById('acao-grid').innerHTML = ACOES.map(a=>
+    `<div class="acao-opt${selAcao===a?' on':''}" onclick="selAcaoFn('${a}')">${a}</div>`
+  ).join('');
+}
+
+function selAcaoFn(a){
+  selAcao=a;
+  renderAcoes();
+  const outro=document.getElementById('acao-outro');
+  outro.style.display = a==='Outro'?'block':'none';
+  if(a==='Outro') outro.focus();
+}
+
+// ============================================================
+//  SUPABASE
+// ============================================================
+function initSupabase(){
+  supaClient=supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
+  loadFromSupabase();
+  subscribeRealtime();
+}
+
+async function loadFromSupabase(){
+  try{
+    const {data,error}=await supaClient.from('ocorrencias').select('*').order('seq_id',{ascending:false}).limit(500);
+    if(error) throw error;
+    recs=data||[];
+    // Descobrir próximo seq
+    if(recs.length) seqCounter=Math.max(...recs.map(r=>r.seq_id||0));
+    renderAllMarkers();
+    renderRec();
+    buildFilterOptions();
+    setSyncStatus('ok','🟢 Conectado · '+recs.length+' ocorrências');
+    if(offlineQueue.length) flushOfflineQueue();
+  }catch(e){
+    setSyncStatus('err','Offline — dados locais');
+    recs=JSON.parse(localStorage.getItem('am_recs')||'[]');
+    renderAllMarkers();renderRec();buildFilterOptions();
+  }
+}
+
+function subscribeRealtime(){
+  supaClient.channel('ocorrencias-rt')
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'ocorrencias'},p=>{
+      const r=p.new;
+      if(!recs.find(x=>x.id===r.id)){
+        recs.unshift(r);
+        if(seqCounter<(r.seq_id||0)) seqCounter=r.seq_id||0;
+        addMarkerToMap(r);
+        renderRec();
+        buildFilterOptions();
+        setSyncStatus('ok','🟢 Novo #'+r.seq_id+': '+r.pest_name+' ('+r.tecnico+')');
+      }
+    })
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'ocorrencias'},p=>{
+      const r=p.new;
+      const idx=recs.findIndex(x=>x.id===r.id);
+      if(idx>=0) recs[idx]=r;
+      // Atualizar marcador
+      if(markersMap[r.id]) markersMap[r.id].remove();
+      delete markersMap[r.id];
+      addMarkerToMap(r);
+      renderRec();
+      setSyncStatus('ok','🟢 #'+r.seq_id+' atualizado por '+r.concluido_por);
+    })
+    .on('postgres_changes',{event:'DELETE',schema:'public',table:'ocorrencias'},p=>{
+      const id=p.old.id;
+      recs=recs.filter(r=>r.id!==id);
+      if(markersMap[id]){markersMap[id].remove();delete markersMap[id];}
+      renderRec();
+    })
+    .subscribe(s=>{
+      if(s==='SUBSCRIBED') setSyncStatus('ok','🟢 Tempo real ativo');
+      if(s==='CHANNEL_ERROR') setSyncStatus('err','Erro de conexão');
+    });
+}
+
+async function flushOfflineQueue(){
+  const toSync=[...offlineQueue];
+  for(const r of toSync){
+    const {error}=await supaClient.from('ocorrencias').insert([r]);
+    if(!error) offlineQueue=offlineQueue.filter(x=>x.id!==r.id);
+  }
+  localStorage.setItem('am_offline',JSON.stringify(offlineQueue));
+  if(!offlineQueue.length) setSyncStatus('ok','🟢 Sincronização offline concluída!');
+}
+
+function setSyncStatus(state,msg){
+  const d=document.getElementById('sync-dot');
+  d.className=state==='ok'?'ok':state==='err'?'err':'';
+  document.getElementById('sync-txt').textContent=msg;
+}
+
+// ============================================================
+//  FILTRO FAZENDA (TAG_INST_F)
+// ============================================================
+function buildFilterOptions(){
+  const sel=document.getElementById('faz-filter');
+  const current=sel.value;
+  const fazendas=[...new Set(recs.map(r=>r.cod_faz||'').filter(Boolean))].sort();
+  sel.innerHTML='<option value="">— todas —</option>'+fazendas.map(f=>`<option value="${f}">${f}</option>`).join('');
+  if(current) sel.value=current;
+  // Também filtrar no mapa ao carregar
+  applyMapFilter(activeFilter);
+}
+
+function applyFilter(){
+  activeFilter=document.getElementById('faz-filter').value;
+  document.getElementById('btn-clear-filter').style.display=activeFilter?'block':'none';
+  applyMapFilter(activeFilter);
+  renderRec();
+  // Voar para a fazenda se selecionar
+  if(activeFilter&&mapReady){
+    const feats=mapInstance.querySourceFeatures('talhoes-src',{sourceLayer:TILESET_LAYER,filter:['==',['get','TAG_INST_F'],activeFilter]});
+    if(feats.length){
+      const coords=feats.flatMap(f=>{
+        const g=f.geometry;
+        if(g.type==='Polygon') return g.coordinates[0];
+        if(g.type==='MultiPolygon') return g.coordinates.flat(2);
+        return[];
+      });
+      if(coords.length){
+        const lons=coords.map(c=>c[0]),lats=coords.map(c=>c[1]);
+        mapInstance.fitBounds([[Math.min(...lons),Math.min(...lats)],[Math.max(...lons),Math.max(...lats)]],{padding:40,duration:1000});
+      }
+    }
+  }
+}
+
+function clearFilter(){
+  document.getElementById('faz-filter').value='';
+  activeFilter='';
+  document.getElementById('btn-clear-filter').style.display='none';
+  applyMapFilter('');
+  renderRec();
+}
+
+function applyMapFilter(faz){
+  if(!mapReady) return;
+  const filter=faz?['==',['get','TAG_INST_F'],faz]:null;
+  ['talhoes-fill','talhoes-line','talhoes-label'].forEach(l=>{
+    if(mapInstance.getLayer(l)) mapInstance.setFilter(l,filter);
+  });
+}
+
+// ============================================================
+//  MAPBOX
+// ============================================================
 function initMap(){
   mapboxgl.accessToken=MAPBOX_TOKEN;
   mapInstance=new mapboxgl.Map({
@@ -483,27 +628,24 @@ function initMap(){
     mapReady=true;
     addTalhaoLayer();
     renderAllMarkers();
+    applyMapFilter(activeFilter);
     st('Mapa carregado');
   });
 
-  // Hover nos talhões
   mapInstance.on('mousemove','talhoes-fill',e=>{
-    const f=e.features[0];if(!f) return;
+    const f=e.features[0]; if(!f) return;
     const p=f.properties;
     mapInstance.getCanvas().style.cursor='pointer';
-    document.getElementById('tb-faz').textContent=p.NOME_FAZEN||p.f||'Fazenda';
-    document.getElementById('tb-info').textContent=
-      'Q'+( p.TAG_INST_Q||p.q||'—')+' · '+(p.NOM_INST||p.t||'—')+' · '+(p.AREA_TOTAL||p.a||'—')+' ha';
+    document.getElementById('tb-faz').textContent=(p.NOME_FAZEN||p.f||'Fazenda')+' ['+( p.TAG_INST_F||p.cf||'')+']';
+    document.getElementById('tb-info').textContent='Q'+(p.TAG_INST_Q||p.q||'—')+' · '+(p.NOM_INST||p.t||'—')+' · '+(p.AREA_TOTAL||p.a||'—')+' ha';
     document.getElementById('talhao-box').style.display='block';
   });
   mapInstance.on('mouseleave','talhoes-fill',()=>{
     mapInstance.getCanvas().style.cursor='';
     document.getElementById('talhao-box').style.display='none';
   });
-
-  // Click nos talhões
   mapInstance.on('click','talhoes-fill',e=>{
-    const f=e.features[0];if(!f) return;
+    const f=e.features[0]; if(!f) return;
     const p=f.properties;
     currentTalhao={
       f:p.NOME_FAZEN||p.f||'',
@@ -512,6 +654,7 @@ function initMap(){
       a:p.AREA_TOTAL||p.a||'',
       ap:p.AREA_PRODU||p.ap||'',
       v:p.NRO_VARIED||p.v||'',
+      cf:p.TAG_INST_F||p.cf||'',
     };
     showLocBox(currentTalhao);
     new mapboxgl.Popup({closeButton:true,maxWidth:'240px'})
@@ -520,7 +663,6 @@ function initMap(){
       .addTo(mapInstance);
   });
 
-  // Fechar style panel ao clicar fora
   document.addEventListener('click',e=>{
     if(!e.target.closest('#style-panel')&&!e.target.closest('#fab-style'))
       document.getElementById('style-panel').style.display='none';
@@ -528,94 +670,40 @@ function initMap(){
 }
 
 function addTalhaoLayer(){
-  if(!mapReady) return;
-
-  // Fonte do Tileset Mapbox (Vector Tiles)
-  mapInstance.addSource('talhoes-src',{
-    type:'vector',
-    url:'mapbox://'+TILESET_ID,
-  });
-
-  // Camada de preenchimento por quadra
-  mapInstance.addLayer({
-    id:'talhoes-fill',
-    type:'fill',
-    source:'talhoes-src',
-    'source-layer': getTilesetLayerName(),
+  mapInstance.addSource('talhoes-src',{type:'vector',url:'mapbox://'+TILESET_ID});
+  mapInstance.addLayer({id:'talhoes-fill',type:'fill',source:'talhoes-src','source-layer':TILESET_LAYER,
     paint:{
-      'fill-color':[
-        'match',['%',['to-number',['coalesce',['get','TAG_INST_Q'],['get','q'],'0']],20],
+      'fill-color':['match',['%',['to-number',['coalesce',['get','TAG_INST_Q'],['get','q'],'0']],20],
         0,'#2d7a2d',1,'#1a6bb5',2,'#c87d00',3,'#8e44ad',4,'#c0392b',
         5,'#0e8074',6,'#d4860b',7,'#1a4a8a',8,'#5c8a00',9,'#8a3a00',
         10,'#3a5a8a',11,'#6a2d8a',12,'#8a6a00',13,'#005a5a',14,'#8a0000',
-        15,'#005000',16,'#6a4a00',17,'#002a6a',18,'#4a004a',19,'#2a2a2a',
-        '#2d6a2d'
-      ],
+        15,'#005000',16,'#6a4a00',17,'#002a6a',18,'#4a004a',19,'#2a2a2a','#2d6a2d'],
       'fill-opacity':0.45,
     }
   });
-
-  // Borda dos talhões
-  mapInstance.addLayer({
-    id:'talhoes-line',
-    type:'line',
-    source:'talhoes-src',
-    'source-layer': getTilesetLayerName(),
-    paint:{
-      'line-color':'#fff',
-      'line-width':0.6,
-      'line-opacity':0.7,
-    }
+  mapInstance.addLayer({id:'talhoes-line',type:'line',source:'talhoes-src','source-layer':TILESET_LAYER,
+    paint:{'line-color':'#fff','line-width':0.6,'line-opacity':0.7}
   });
-
-  // Labels dos talhões (visível a partir do zoom 13)
-  mapInstance.addLayer({
-    id:'talhoes-label',
-    type:'symbol',
-    source:'talhoes-src',
-    'source-layer': getTilesetLayerName(),
-    minzoom:13,
-    layout:{
-      'text-field':['coalesce',['get','TAG_INST'],['get','tag'],''],
-      'text-size':10,
-      'text-allow-overlap':false,
-    },
-    paint:{
-      'text-color':'#fff',
-      'text-halo-color':'rgba(0,0,0,.6)',
-      'text-halo-width':1.5,
-    }
+  mapInstance.addLayer({id:'talhoes-label',type:'symbol',source:'talhoes-src','source-layer':TILESET_LAYER,minzoom:13,
+    layout:{'text-field':['coalesce',['get','TAG_INST'],['get','tag'],''],'text-size':10,'text-allow-overlap':false},
+    paint:{'text-color':'#fff','text-halo-color':'rgba(0,0,0,.6)','text-halo-width':1.5}
   });
-}
-
-// Nome da camada vetorial dentro do tileset
-// O Mapbox usa o nome do arquivo source como layer-name
-function getTilesetLayerName(){
-  // Para tilesets criados via upload, o source-layer geralmente é o nome do arquivo sem extensão
-  // Como o tileset é 'danieltognon.dfd0jjk7', tentamos nomes comuns
-  // Você pode conferir no Mapbox Studio → tileset → "..." → "Inspect"
-  return 'Cerradinho-Maio2026-8p9lkf'; // Ajuste se necessário após inspecionar no Studio
 }
 
 function makeTalhaoPopup(p){
   return `<h4>🌳 ${p.t||'Talhão'}</h4>
-    <div class="prow"><span class="plbl">Fazenda</span><span class="pval">${p.f||'—'}</span></div>
-    <div class="prow"><span class="plbl">Quadra</span><span class="pval">${p.q||'—'}</span></div>
-    <div class="prow"><span class="plbl">Área total</span><span class="pval">${p.a||'—'} ha</span></div>
-    <div class="prow"><span class="plbl">Área prod.</span><span class="pval">${p.ap||'—'} ha</span></div>
-    ${p.v?`<div class="pvar">🌱 ${p.v}</div>`:''}`;
+    <div class="pp"><span class="pl">Fazenda</span><span class="pv">${p.f||'—'}</span></div>
+    <div class="pp"><span class="pl">Cód.</span><span class="pv">${p.cf||'—'}</span></div>
+    <div class="pp"><span class="pl">Quadra</span><span class="pv">${p.q||'—'}</span></div>
+    <div class="pp"><span class="pl">Área</span><span class="pv">${p.a||'—'} ha</span></div>
+    ${p.v?`<div class="pp"><span class="pl">Variedade</span><span class="pv">${p.v}</span></div>`:''}`;
 }
 
 function setMapStyle(style){
-  if(!mapInstance) return;
   mapInstance.setStyle(MAP_STYLES[style]);
-  mapInstance.once('style.load',()=>{
-    addTalhaoLayer();
-    renderAllMarkers();
-  });
+  mapInstance.once('style.load',()=>{addTalhaoLayer();renderAllMarkers();applyMapFilter(activeFilter);});
   document.getElementById('style-panel').style.display='none';
 }
-
 function toggleStylePanel(){
   const p=document.getElementById('style-panel');
   p.style.display=p.style.display==='block'?'none':'block';
@@ -625,15 +713,14 @@ function toggleStylePanel(){
 //  GPS
 // ============================================================
 function requestGPS(){
-  if(!navigator.geolocation){useDemo('GPS não suportado');return;}
+  if(!navigator.geolocation){useDemo('GPS indisponível');return;}
   gpsDot('blink','Localizando...');
   navigator.geolocation.watchPosition(pos=>{
-    uLat=pos.coords.latitude;uLng=pos.coords.longitude;
+    uLat=pos.coords.latitude; uLng=pos.coords.longitude;
     const acc=Math.round(pos.coords.accuracy);
     gpsDot('','±'+acc+'m');
     document.getElementById('gpsdot').style.background=acc<20?'#4caf50':acc<60?'#8bc34a':'#f39c12';
-    updateBtn();updateSt();
-    // Atualizar marcador "eu"
+    updateBtn(); updateSt();
     if(!myMarker){
       const el=document.createElement('div');
       el.style.cssText='width:14px;height:14px;border-radius:50%;background:#1a6bb5;border:3px solid #fff;box-shadow:0 0 0 4px rgba(26,107,181,.2)';
@@ -642,83 +729,126 @@ function requestGPS(){
     } else {
       myMarker.setLngLat([uLng,uLat]);
     }
-  },err=>{useDemo(err.code===1?'GPS negado':'Erro GPS');},{enableHighAccuracy:true,maximumAge:5000,timeout:15000});
+    // Detectar talhão pelo GPS
+    if(mapReady){
+      const pt=mapInstance.project([uLng,uLat]);
+      const feats=mapInstance.queryRenderedFeatures(pt,{layers:['talhoes-fill']});
+      if(feats.length){
+        const p=feats[0].properties;
+        currentTalhao={f:p.NOME_FAZEN||p.f||'',q:p.TAG_INST_Q||p.q||'',t:p.NOM_INST||p.t||'',a:p.AREA_TOTAL||p.a||'',ap:p.AREA_PRODU||p.ap||'',v:p.NRO_VARIED||p.v||'',cf:p.TAG_INST_F||p.cf||''};
+        showLocBox(currentTalhao);
+      }
+    }
+  },err=>useDemo(err.code===1?'GPS negado':'Erro GPS'),{enableHighAccuracy:true,maximumAge:5000,timeout:15000});
 }
 
-function useDemo(reason){
-  uLat=-18.5+(Math.random()-.5)*.02;uLng=-52.3+(Math.random()-.5)*.02;
-  gpsDot('','Demo');document.getElementById('gpsdot').style.background='#f39c12';
-  document.getElementById('offline-banner').textContent='⚡ '+reason+' — modo demo';
+function useDemo(r){
+  uLat=-18.5+(Math.random()-.5)*.02; uLng=-52.3+(Math.random()-.5)*.02;
+  gpsDot('','Demo'); document.getElementById('gpsdot').style.background='#f39c12';
+  document.getElementById('offline-banner').textContent='⚡ '+r+' — modo demo';
   document.getElementById('offline-banner').style.display='block';
   updateBtn();
-  if(mapReady) mapInstance.flyTo({center:[uLng,uLat],zoom:12,duration:1000});
+  if(mapReady) mapInstance.flyTo({center:[uLng,uLat],zoom:12});
 }
-
-function goHome(){
-  if(uLat!==null&&mapReady) mapInstance.flyTo({center:[uLng,uLat],zoom:16,duration:1200});
+function goHome(){if(uLat!==null&&mapReady) mapInstance.flyTo({center:[uLng,uLat],zoom:16,duration:1200});}
+function showLocBox(t){
+  document.getElementById('loc-box').style.display='block';
+  document.getElementById('loc-txt').innerHTML=`<b>${t.f||'—'}</b> [${t.cf||'—'}]<br>Quadra ${t.q||'—'} · ${t.t||'—'} · ${t.a||'—'} ha${t.v?' · 🌱 '+t.v:''}`;
 }
 
 // ============================================================
-//  REGISTRAR OCORRÊNCIA
+//  REGISTRAR
 // ============================================================
 async function addRec(){
   if(!selP||uLat===null) return;
   const pest=pests.find(p=>p.id===selP);
-  if(!userName){openUserModal();return;}
+  const acao=selAcao==='Outro'?(document.getElementById('acao-outro').value.trim()||'Outro'):selAcao;
 
+  seqCounter++;
   const rec={
     id: crypto.randomUUID(),
-    pest_id:   selP,
-    pest_name: pest.name,
-    pest_icon: pest.ic,
-    pest_cat:  pest.cat||'',
-    severity:  selSev,
-    lat: parseFloat((uLat+(Math.random()-.5)*.00015).toFixed(7)),
-    lng: parseFloat((uLng+(Math.random()-.5)*.00015).toFixed(7)),
-    notes:     document.getElementById('notes').value.trim(),
-    photo:     photoData,
-    tecnico:   userName,
-    fazenda:   currentTalhao?.f||'',
-    quadra:    currentTalhao?.q||'',
-    talhao:    currentTalhao?.t||'',
-    area_ha:   currentTalhao?.a||'',
-    variedade: currentTalhao?.v||'',
-    created_at: new Date().toISOString(),
+    seq_id: seqCounter,
+    pest_id:selP, pest_name:pest.name, pest_icon:pest.ic, pest_cat:pest.cat||'',
+    severity:selSev,
+    lat:parseFloat((uLat+(Math.random()-.5)*.00015).toFixed(7)),
+    lng:parseFloat((uLng+(Math.random()-.5)*.00015).toFixed(7)),
+    notes:document.getElementById('notes').value.trim(),
+    photo:photoData,
+    tecnico:currentUser.login,
+    fazenda:currentTalhao?.f||'',
+    quadra:currentTalhao?.q||'',
+    talhao:currentTalhao?.t||'',
+    area_ha:currentTalhao?.a||'',
+    variedade:currentTalhao?.v||'',
+    cod_faz:currentTalhao?.cf||'',
+    acao:acao||'',
+    status:'pendente',
+    concluido_por:null,
+    concluido_em:null,
+    created_at:new Date().toISOString(),
   };
 
-  // Adicionar localmente imediato (UX rápido)
   recs.unshift(rec);
   addMarkerToMap(rec);
   renderRec();
+  buildFilterOptions();
 
-  // Tentar salvar no Supabase
-  const ok=await saveToSupabase(rec);
-  if(!ok){
-    offlineQueue.push(rec);
-    localStorage.setItem('am_offline',JSON.stringify(offlineQueue));
-    setSyncStatus('warn','⚠️ Salvo offline — sincronizará quando conectar');
-  } else {
-    setSyncStatus('ok','🟢 Registrado por '+userName);
+  // Salvar no Supabase
+  if(supaClient){
+    const {error}=await supaClient.from('ocorrencias').insert([rec]);
+    if(error){
+      offlineQueue.push(rec);
+      localStorage.setItem('am_offline',JSON.stringify(offlineQueue));
+      setSyncStatus('warn','⚠️ Salvo offline');
+    } else {
+      setSyncStatus('ok','🟢 #'+rec.seq_id+' registrado por '+rec.tecnico);
+    }
   }
-  // Salvar local também (fallback)
   localStorage.setItem('am_recs',JSON.stringify(recs.slice(0,200)));
 
-  // Reset form
+  // Reset
   document.getElementById('notes').value='';
   photoData=null;
   document.getElementById('photo-thumb').style.display='none';
   document.getElementById('plbl').textContent='Opcional';
   document.getElementById('photo-in').value='';
-  st('✅ '+pest.name+' por '+userName+(rec.talhao?' em '+rec.talhao:''));
+  selAcao=null; renderAcoes();
+  document.getElementById('acao-outro').style.display='none';
+  document.getElementById('acao-outro').value='';
+  st('#'+rec.seq_id+' · '+pest.name+' por '+rec.tecnico+(rec.talhao?' em '+rec.talhao:''));
   if(mapReady) mapInstance.flyTo({center:[rec.lng,rec.lat],zoom:16,duration:800});
   go('rec',1);
 }
 
 // ============================================================
-//  MARKERS NO MAPA
+//  CONCLUIR AÇÃO (só supervisores)
+// ============================================================
+async function concludeRec(id){
+  if(!isSupervisor){alert('Apenas supervisores podem concluir ações.');return;}
+  if(!confirm('Marcar esta ação como concluída?')) return;
+  const update={status:'concluido',concluido_por:currentUser.login,concluido_em:new Date().toISOString()};
+  const idx=recs.findIndex(r=>r.id===id);
+  if(idx>=0) Object.assign(recs[idx],update);
+  if(markersMap[id]){markersMap[id].remove();delete markersMap[id];}
+  addMarkerToMap(recs[idx]);
+  renderRec();
+  if(supaClient) await supaClient.from('ocorrencias').update(update).eq('id',id);
+  setSyncStatus('ok','🟢 #'+recs[idx].seq_id+' concluído por '+currentUser.login);
+}
+
+async function delRec(id,e){
+  e.stopPropagation();
+  if(!confirm('Excluir esta ocorrência?')) return;
+  recs=recs.filter(r=>r.id!==id);
+  if(markersMap[id]){markersMap[id].remove();delete markersMap[id];}
+  renderRec();
+  if(supaClient) await supaClient.from('ocorrencias').delete().eq('id',id);
+}
+
+// ============================================================
+//  MARKERS
 // ============================================================
 function renderAllMarkers(){
-  // Limpar existentes
   Object.values(markersMap).forEach(m=>m.remove());
   markersMap={};
   if(!mapReady) return;
@@ -727,75 +857,39 @@ function renderAllMarkers(){
 
 function addMarkerToMap(rec){
   if(!mapReady) return;
-  const col=SC[rec.severity||rec.sev]||'#888';
+  const sev=rec.severity||rec.sev;
+  const col=SC[sev]||'#888';
+  const isDone=rec.status==='concluido';
   const el=document.createElement('div');
-  el.style.cssText=`width:28px;height:28px;border-radius:50%;background:${col};border:3px solid #fff;display:flex;align-items:center;justify-content:center;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,.35);cursor:pointer`;
+  el.style.cssText=`width:28px;height:28px;border-radius:50%;background:${isDone?'#27ae60':col};border:3px solid #fff;display:flex;align-items:center;justify-content:center;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,.35);cursor:pointer${isDone?';opacity:0.7':''}`;
   el.textContent=rec.pest_icon||rec.pestIcon||'🐜';
 
-  const sl=SL[rec.severity||rec.sev]||'—';
+  const sl=SL[sev]||'—';
   const bc=`background:${col}20;color:${col}`;
   const ph=rec.photo&&rec.photo!=='__p__'?`<img src="${rec.photo}" alt="" style="width:100%;border-radius:6px;margin-top:6px;max-height:80px;object-fit:cover">`:'';
-  const tecDiv=rec.tecnico?`<div class="ptecnico">👷 ${rec.tecnico}</div>`:'';
-  const fazDiv=rec.fazenda?`<div class="prow"><span class="plbl">Fazenda</span><span class="pval">${rec.fazenda}</span></div>`:'';
-  const talDiv=rec.talhao?`<div class="prow"><span class="plbl">Talhão</span><span class="pval">Q${rec.quadra} · ${rec.talhao}</span></div>`:'';
-  const timeDiv=`<div class="prow"><span class="plbl">Data</span><span class="pval">${fmtTime(rec.created_at||rec.time)}</span></div>`;
-  const notesDiv=rec.notes?`<div class="prow"><span class="plbl">Obs.</span><span class="pval">${rec.notes}</span></div>`:'';
+  const statusHtml=isDone
+    ?`<div class="pac-status done">✅ Concluído por ${rec.concluido_por}</div>`
+    :`<div class="pac-status pending">⏳ Pendente${rec.acao?' · '+rec.acao:''}</div>`;
+  const concludeBtn=(!isDone&&isSupervisor)
+    ?`<button class="popup-conclude-btn" style="display:block" onclick="concludeRec('${rec.id}')">✅ Marcar como concluído</button>`:'';
+  const fazDiv=rec.fazenda?`<div class="pp"><span class="pl">Fazenda</span><span class="pv">${rec.fazenda}${rec.cod_faz?' ['+rec.cod_faz+']':''}</span></div>`:'';
+  const talDiv=rec.talhao?`<div class="pp"><span class="pl">Talhão</span><span class="pv">Q${rec.quadra} · ${rec.talhao}</span></div>`:'';
 
-  const popup=new mapboxgl.Popup({closeButton:true,maxWidth:'240px'})
-    .setHTML(`<h4>${rec.pest_icon||rec.pestIcon||''} ${rec.pest_name||rec.pestName}</h4>
-      ${fazDiv}${talDiv}${timeDiv}${notesDiv}
-      <span class="pbadge" style="${bc}">Severidade ${sl}</span>
-      ${tecDiv}${ph}`);
+  const popup=new mapboxgl.Popup({closeButton:true,maxWidth:'250px'})
+    .setHTML(`<h4><span style="font-size:11px;background:#e0e0e0;border-radius:4px;padding:1px 5px;margin-right:4px;font-family:monospace">#${rec.seq_id||'—'}</span>${rec.pest_icon||''} ${rec.pest_name||rec.pestName}</h4>
+      ${fazDiv}${talDiv}
+      <div class="pp"><span class="pl">Data</span><span class="pv">${fmtTime(rec.created_at||rec.time)}</span></div>
+      ${rec.notes?`<div class="pp"><span class="pl">Obs.</span><span class="pv">${rec.notes}</span></div>`:''}
+      <span class="pbadge" style="${bc}">${sl}</span>
+      <div class="ptec">👷 ${rec.tecnico||'—'}</div>
+      ${statusHtml}${concludeBtn}${ph}`);
 
-  const marker=new mapboxgl.Marker({element:el})
-    .setLngLat([rec.lng,rec.lat])
-    .setPopup(popup)
-    .addTo(mapInstance);
-
+  const marker=new mapboxgl.Marker({element:el}).setLngLat([rec.lng,rec.lat]).setPopup(popup).addTo(mapInstance);
   markersMap[rec.id]=marker;
 }
 
 // ============================================================
-//  DETECÇÃO DE TALHÃO VIA GPS
-// ============================================================
-// Usamos queryRenderedFeatures do Mapbox — muito mais eficiente que ray casting manual
-function detectTalhaoAtGPS(){
-  if(!mapReady||uLat===null) return;
-  const pt=mapInstance.project([uLng,uLat]);
-  const feats=mapInstance.queryRenderedFeatures(pt,{layers:['talhoes-fill']});
-  if(feats.length){
-    const p=feats[0].properties;
-    currentTalhao={
-      f:p.NOME_FAZEN||p.f||'',
-      q:p.TAG_INST_Q||p.q||'',
-      t:p.NOM_INST||p.t||'',
-      a:p.AREA_TOTAL||p.a||'',
-      ap:p.AREA_PRODU||p.ap||'',
-      v:p.NRO_VARIED||p.v||'',
-    };
-    showLocBox(currentTalhao);
-  } else {
-    currentTalhao=null;
-    document.getElementById('loc-box').style.display='none';
-  }
-}
-
-function showLocBox(t){
-  document.getElementById('loc-box').style.display='block';
-  document.getElementById('loc-txt').innerHTML=
-    `<b>${t.f||'—'}</b><br>Quadra ${t.q||'—'} · ${t.t||'—'} · ${t.a||'—'} ha${t.v?' · 🌱 '+t.v:''}`;
-}
-
-// Checar talhão a cada vez que o mapa termina de mover
-// (queryRenderedFeatures só funciona com tiles visíveis)
-let talhaoCheckTimer=null;
-function scheduleTalhaoCheck(){
-  clearTimeout(talhaoCheckTimer);
-  talhaoCheckTimer=setTimeout(detectTalhaoAtGPS,400);
-}
-
-// ============================================================
-//  UI: PESTS / CATS
+//  UI PESTS
 // ============================================================
 function renderCats(){
   document.getElementById('cat-row').innerHTML=CATS.map(c=>
@@ -838,28 +932,33 @@ function handlePhoto(inp){
 // ============================================================
 function renderRec(){
   const el=document.getElementById('rec-list');
-  const myFaz=document.getElementById('chk-myfaz')?.checked;
+  const onlyPending=document.getElementById('chk-pending')?.checked;
+  const onlyMine=document.getElementById('chk-mine')?.checked;
   let list=recs;
-  if(myFaz&&currentTalhao?.f) list=recs.filter(r=>r.fazenda===currentTalhao.f);
-  if(!list.length){el.innerHTML='<div class="empty">📋 Sem ocorrências.<br>Use a aba Registrar.</div>';return;}
+  if(activeFilter) list=list.filter(r=>r.cod_faz===activeFilter);
+  if(onlyPending)  list=list.filter(r=>r.status==='pendente');
+  if(onlyMine)     list=list.filter(r=>r.tecnico===currentUser?.login);
+  if(!list.length){el.innerHTML='<div class="empty">📋 Nenhuma ocorrência encontrada.</div>';return;}
   el.innerHTML=list.slice(0,80).map(r=>{
     const col=SC[r.severity||r.sev]||'#888';
-    const isMe=r.tecnico===userName;
+    const isDone=r.status==='concluido';
     const hp=r.photo&&r.photo!=='__p__';
-    const offline=offlineQueue.find(q=>q.id===r.id);
+    const isMe=r.tecnico===currentUser?.login;
+    const canConclude=isSupervisor&&!isDone;
     return `<div class="ri" onclick="flyToRec(${r.lat},${r.lng})">
-      <div class="rdot" style="background:${col}"></div>
+      <div class="rdot" style="background:${isDone?'#27ae60':col}"></div>
       <div class="rinfo">
-        <div class="rnm">${r.pest_icon||r.pestIcon||''} ${r.pest_name||r.pestName}</div>
-        ${r.talhao?`<div class="rtag">🌾 ${r.fazenda||''} · Q${r.quadra} · ${r.talhao}</div>`:''}
+        <div class="rnm"><span class="rid">#${r.seq_id||'—'}</span>${r.pest_icon||''} ${r.pest_name||r.pestName||''}</div>
+        ${r.talhao?`<div class="rtag">🌾 ${r.fazenda||''} [${r.cod_faz||''}] · Q${r.quadra} · ${r.talhao}</div>`:''}
         <div class="rlc">${r.lat.toFixed(4)}, ${r.lng.toFixed(4)}${r.notes?' · '+r.notes.slice(0,22):''}</div>
         <div class="rtec">👷 ${r.tecnico||'—'}</div>
+        <div class="rac ${isDone?'done':'pending'}">${isDone?'✅ Concluído por '+r.concluido_por:'⏳ Pendente'+(r.acao?' · '+r.acao:'')}</div>
+        ${canConclude?`<button class="rconclude" style="display:block" onclick="event.stopPropagation();concludeRec('${r.id}')">✅ Concluir</button>`:''}
       </div>
       ${hp?`<img class="rphoto" src="${r.photo}" alt="">`:''}
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0">
         <span class="rtime">${fmtTime(r.created_at||r.time)}</span>
-        ${offline?'<span style="font-size:9px;color:#c87d00">⏳offline</span>':'<span style="font-size:9px;color:#27ae60">✓sync</span>'}
-        ${isMe?`<button class="rdel" onclick="delRec('${r.id}',event)">✕</button>`:''}
+        ${isMe||isSupervisor?`<button class="rdel" onclick="event.stopPropagation();delRec('${r.id}',event)">✕</button>`:''}
       </div>
     </div>`;
   }).join('');
@@ -869,28 +968,18 @@ function flyToRec(lat,lng){
   if(mapReady) mapInstance.flyTo({center:[lng,lat],zoom:17,duration:800});
 }
 
-async function delRec(id,e){
-  e.stopPropagation();if(!confirm('Excluir?'))return;
-  recs=recs.filter(r=>r.id!==id);
-  if(markersMap[id]){markersMap[id].remove();delete markersMap[id];}
-  renderRec();
-  await deleteFromSupabase(id);
-  localStorage.setItem('am_recs',JSON.stringify(recs.slice(0,200)));
-  st('Excluído.');
-}
-
 // ============================================================
 //  STATS / EXPORT
 // ============================================================
 function renderStats(){
   const sH=recs.filter(r=>(r.severity||r.sev)==='h').length;
+  const pending=recs.filter(r=>r.status==='pendente').length;
   const tipos=new Set(recs.map(r=>r.pest_id||r.pestId)).size;
-  const tecs=new Set(recs.map(r=>r.tecnico).filter(Boolean)).size;
   document.getElementById('sgrid').innerHTML=`
-    <div class="sbox"><div class="sn">${recs.length}</div><div class="sl">Ocorrências</div></div>
+    <div class="sbox"><div class="sn">${recs.length}</div><div class="sl">Total</div></div>
     <div class="sbox"><div class="sn" style="color:#b92929">${sH}</div><div class="sl">Sev. Alta</div></div>
-    <div class="sbox"><div class="sn" style="color:var(--blue)">${tipos}</div><div class="sl">Espécies</div></div>
-    <div class="sbox"><div class="sn" style="color:#7b4f00">${tecs}</div><div class="sl">Técnicos</div></div>`;
+    <div class="sbox"><div class="sn" style="color:#c87d00">${pending}</div><div class="sl">Pendentes</div></div>
+    <div class="sbox"><div class="sn" style="color:#27ae60">${recs.length-pending}</div><div class="sl">Concluídos</div></div>`;
 }
 
 function go(id,idx){
@@ -898,8 +987,8 @@ function go(id,idx){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
   document.getElementById('tc-'+id).classList.add('on');
   document.querySelectorAll('.tab')[idx].classList.add('on');
-  if(id==='rec')renderRec();
-  if(id==='exp')renderStats();
+  if(id==='rec') renderRec();
+  if(id==='exp') renderStats();
 }
 
 function fmtTime(v){
@@ -907,36 +996,35 @@ function fmtTime(v){
   try{return new Date(v).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}
   catch(e){return String(v);}
 }
-
 function dstr(){return new Date().toISOString().slice(0,10).replace(/-/g,'');}
 function dl(fn,mime,cnt){const b=new Blob([cnt],{type:mime});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=fn;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);}
 
 function expCSV(){
-  const rows=[['ID','Data','Técnico','Praga','Categoria','Severidade','Fazenda','Quadra','Talhão','Área_ha','Variedade','Latitude','Longitude','Observações']];
-  recs.forEach(r=>rows.push([r.id,fmtTime(r.created_at||r.time),r.tecnico||'',r.pest_name||r.pestName||'',r.pest_cat||'',SL[r.severity||r.sev]||'',r.fazenda||'',r.quadra||'',r.talhao||'',r.area_ha||'',r.variedade||'',r.lat.toFixed(7),r.lng.toFixed(7),(r.notes||'').replace(/[",\n]/g,' ')]));
+  const rows=[['#ID','Data','Técnico','Praga','Categoria','Severidade','Ação','Status','Concluído por','Fazenda','Cód.Faz','Quadra','Talhão','Área_ha','Variedade','Latitude','Longitude','Observações']];
+  recs.forEach(r=>rows.push([r.seq_id||'',fmtTime(r.created_at||r.time),r.tecnico||'',r.pest_name||'',r.pest_cat||'',SL[r.severity||r.sev]||'',r.acao||'',r.status||'',r.concluido_por||'',r.fazenda||'',r.cod_faz||'',r.quadra||'',r.talhao||'',r.area_ha||'',r.variedade||'',r.lat.toFixed(7),r.lng.toFixed(7),(r.notes||'').replace(/[",\n]/g,' ')]));
   dl('agromapa_'+dstr()+'.csv','text/csv;charset=utf-8','\uFEFF'+rows.map(r=>r.map(c=>`"${c}"`).join(',')).join('\r\n'));
 }
-
 function expGeo(){
-  const feats=recs.map(r=>({type:'Feature',geometry:{type:'Point',coordinates:[r.lng,r.lat]},properties:{praga:r.pest_name||r.pestName,tecnico:r.tecnico||'',severidade:SL[r.severity||r.sev]||'',fazenda:r.fazenda||'',quadra:r.quadra||'',talhao:r.talhao||'',data:fmtTime(r.created_at||r.time),observacoes:r.notes||''}}));
+  const feats=recs.map(r=>({type:'Feature',geometry:{type:'Point',coordinates:[r.lng,r.lat]},properties:{seq_id:r.seq_id,praga:r.pest_name||'',tecnico:r.tecnico||'',severidade:SL[r.severity||r.sev]||'',acao:r.acao||'',status:r.status||'',fazenda:r.fazenda||'',cod_faz:r.cod_faz||'',quadra:r.quadra||'',talhao:r.talhao||'',data:fmtTime(r.created_at||r.time),observacoes:r.notes||''}}));
   dl('agromapa_'+dstr()+'.geojson','application/geo+json',JSON.stringify({type:'FeatureCollection',features:feats},null,2));
 }
-
 function expJSON(){
-  dl('agromapa_backup_'+dstr()+'.json','application/json',JSON.stringify({app:'AgroMapa Pro',versao:'4.0',exportado:new Date().toISOString(),ocorrencias:recs},null,2));
+  dl('agromapa_backup_'+dstr()+'.json','application/json',JSON.stringify({app:'AgroMapa Pro',versao:'5.0',exportado:new Date().toISOString(),ocorrencias:recs},null,2));
 }
-
 function expReport(){
   const L='─'.repeat(45);
   let t='RELATÓRIO — AgroMapa Pro\n'+new Date().toLocaleString('pt-BR')+'\n'+'='.repeat(45)+'\n\n';
-  t+=`Ocorrências: ${recs.length} | Alta: ${recs.filter(r=>(r.severity||r.sev)==='h').length} | Média: ${recs.filter(r=>(r.severity||r.sev)==='m').length} | Baixa: ${recs.filter(r=>(r.severity||r.sev)==='l').length}\n\n`;
-  const fm={};recs.forEach(r=>{const f=r.fazenda||'(sem fazenda)';(fm[f]=fm[f]||[]).push(r);});
+  const pending=recs.filter(r=>r.status==='pendente').length;
+  t+=`Total: ${recs.length} | Alta: ${recs.filter(r=>(r.severity||r.sev)==='h').length} | Pendentes: ${pending} | Concluídos: ${recs.length-pending}\n\n`;
+  const fm={};recs.forEach(r=>{const f=(r.fazenda||'(sem fazenda)')+' ['+(r.cod_faz||'')+']';(fm[f]=fm[f]||[]).push(r);});
   Object.entries(fm).sort().forEach(([f,rs])=>{
     t+=`\n🌾 ${f}\n${L}\n`;
-    const tm={};rs.forEach(r=>{const k=r.talhao||'—';(tm[k]=tm[k]||[]).push(r);});
-    Object.entries(tm).sort().forEach(([tl,trs])=>{
-      t+=`  ${tl}:\n`;
-      trs.forEach(r=>{t+=`    [${(SL[r.severity||r.sev]||'').toUpperCase()}] ${r.pest_name||r.pestName} · ${r.tecnico||'—'} · ${fmtTime(r.created_at||r.time)}\n`;});
+    rs.forEach(r=>{
+      const st=r.status==='concluido'?'✅ CONCLUÍDO':'⏳ PENDENTE';
+      t+=`  #${r.seq_id||'—'} [${(SL[r.severity||r.sev]||'').toUpperCase()}] ${r.pest_name||''} · ${r.tecnico||'—'} · ${fmtTime(r.created_at||r.time)}\n`;
+      t+=`       ${st}${r.acao?' · '+r.acao:''}${r.concluido_por?' · por '+r.concluido_por:''}\n`;
+      if(r.talhao) t+=`       Q${r.quadra} · ${r.talhao}\n`;
+      if(r.notes)  t+=`       Obs: ${r.notes}\n`;
     });
   });
   dl('relatorio_'+dstr()+'.txt','text/plain;charset=utf-8',t);
@@ -945,14 +1033,13 @@ function expReport(){
 // ============================================================
 //  CUSTOM PEST
 // ============================================================
-function openModal(){document.getElementById('pest-modal').classList.add('on');document.getElementById('cp-nm').focus();}
+function openModal(){document.getElementById('pest-modal').classList.add('on');}
 function closePestModal(){document.getElementById('pest-modal').classList.remove('on');}
 function saveCustom(){
   const nm=document.getElementById('cp-nm').value.trim();if(!nm){alert('Informe o nome.');return;}
   const p={id:'c_'+Date.now(),name:nm,sci:document.getElementById('cp-sci').value.trim(),ic:document.getElementById('cp-ic').value.trim()||'🌿',cat:document.getElementById('cp-cat').value,sev:document.getElementById('cp-sev').value,custom:true};
   const cp=JSON.parse(localStorage.getItem('am_cpests')||'[]');cp.push(p);localStorage.setItem('am_cpests',JSON.stringify(cp));
   pests=loadPests();closePestModal();renderCats();renderPests();
-  alert('Praga "'+nm+'" adicionada!');
   ['cp-nm','cp-sci','cp-ic'].forEach(id=>document.getElementById(id).value='');
 }
 
@@ -964,44 +1051,12 @@ function gpsDot(cls,txt){
   document.getElementById('gpslbl').textContent=txt;
 }
 function st(m){document.getElementById('status-bar').textContent=m;}
-function updateSt(){
-  if(uLat!==null) st('GPS: '+uLat.toFixed(5)+', '+uLng.toFixed(5)+(currentTalhao?' · '+currentTalhao.t:''));
-}
+function updateSt(){if(uLat!==null) st('GPS: '+uLat.toFixed(5)+', '+uLng.toFixed(5)+(currentTalhao?' · '+currentTalhao.t:''));}
 
-// ============================================================
-//  OFFLINE / ONLINE
-// ============================================================
-window.addEventListener('online',()=>{
-  document.getElementById('offline-banner').style.display='none';
-  flushOfflineQueue();
-  loadFromSupabase();
-});
-window.addEventListener('offline',()=>{
-  document.getElementById('offline-banner').style.display='block';
-  document.getElementById('offline-banner').textContent='⚡ Sem internet — registros serão sincronizados ao reconectar';
-  setSyncStatus('err','Offline');
-});
-if(!navigator.onLine){document.getElementById('offline-banner').style.display='block';}
-
-if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
-}
-
-// ============================================================
-//  INIT
-// ============================================================
-initMap();
-renderCats();renderPests();
-requestGPS();
-initSupabase();
-
-// Checar talhão quando mapa parar de mover
-setTimeout(()=>{
-  if(mapInstance){
-    mapInstance.on('moveend',scheduleTalhaoCheck);
-    mapInstance.on('zoomend',scheduleTalhaoCheck);
-  }
-},2000);
+window.addEventListener('online',()=>{document.getElementById('offline-banner').style.display='none';loadFromSupabase();});
+window.addEventListener('offline',()=>{document.getElementById('offline-banner').style.display='block';setSyncStatus('err','Offline');});
+if(!navigator.onLine) document.getElementById('offline-banner').style.display='block';
+if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 </script>
 </body>
 </html>
