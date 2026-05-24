@@ -1,6 +1,6 @@
 {
-  "name": "AgroMapa Pro - Mapeamento de Pragas",
-  "short_name": "AgroMapa",
+  "name": "PragaPro Cbio - Mapeamento de Pragas",
+  "short_name": "PragaPro Cbio",
   "description": "Mapeamento de pragas agrícolas para silvicultura. Funciona 100% offline.",
   "start_url": "/index.html",
   "display": "standalone",
