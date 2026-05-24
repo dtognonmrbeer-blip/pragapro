@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1a3a1a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="AgroMapa">
+<title>AgroMapa Pro</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.css" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --gd:#1a3a1a;--gm:#2d6a2d;--gl:#4a9e4a;
+  --amber:#c87d00;--red:#b92929;--blue:#1a6bb5;
+  --cream:#f4f0e6;--white:#fff;--tx:#1a1a1a;--mu:#666;--bd:#ddd;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:var(--tx);display:flex;flex-direction:column;background:#111}
+
+/* HEADER */
+#header{background:var(--gd);color:#fff;padding:9px 13px;display:flex;align-items:center;gap:9px;flex-shrink:0;z-index:10}
+#header h1{font-size:14px;font-weight:700}
+#header p{font-size:10px;opacity:.6;margin-top:1px}
+.gps-badge{margin-left:auto;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.22);border-radius:20px;padding:3px 9px;font-size:10px;display:flex;align-items:center;gap:5px;white-space:nowrap;flex-shrink:0}
+.gpsdot{width:7px;height:7px;border-radius:50%;background:#4caf50;flex-shrink:0}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+.gpsdot.blink{animation:blink 1.4s infinite}
+
+/* SYNC STATUS */
+#sync-bar{background:#0c4470;color:#fff;font-size:11px;padding:4px 12px;display:flex;align-items:center;gap:8px;flex-shrink:0}
+#sync-dot{width:8px;height:8px;border-radius:50%;background:#f39c12;flex-shrink:0}
+#sync-dot.ok{background:#4caf50}
+#sync-dot.err{background:#c0392b}
+#sync-txt{flex:1;font-size:10px}
+#user-badge{background:rgba(255,255,255,.15);border-radius:12px;padding:2px 9px;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap}
+
+/* OFFLINE */
+#offline-banner{background:#7b4f00;color:#ffe08a;font-size:11px;text-align:center;padding:4px 10px;flex-shrink:0;display:none}
+
+/* MAP */
+#map-wrap{flex:1;position:relative;min-height:0}
+#map{width:100%;height:100%}
+.mapboxgl-popup-content{border-radius:10px;padding:12px 14px;box-shadow:0 3px 14px rgba(0,0,0,.25);min-width:170px;font-size:12px}
+.mapboxgl-popup-content h4{font-size:13px;font-weight:700;margin-bottom:5px;color:var(--gd)}
+.mapboxgl-popup-content .prow{display:flex;gap:5px;margin:2px 0;align-items:baseline}
+.mapboxgl-popup-content .plbl{font-size:10px;color:#888;min-width:55px}
+.mapboxgl-popup-content .pval{font-size:11px;font-weight:600}
+.mapboxgl-popup-content .pbadge{display:inline-block;border-radius:10px;padding:2px 8px;font-size:10px;font-weight:700;margin-top:5px}
+.mapboxgl-popup-content .pvar{font-size:10px;color:#666;font-style:italic;margin-top:3px}
+.mapboxgl-popup-content .ptecnico{font-size:10px;color:#1a6bb5;margin-top:4px;font-weight:600}
+.mapboxgl-popup-content img{width:100%;border-radius:6px;margin-top:6px;max-height:80px;object-fit:cover}
+
+/* FABS */
+.fab{position:absolute;z-index:5;background:#fff;border:1px solid var(--bd);border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:17px;box-shadow:0 2px 8px rgba(0,0,0,.25);user-select:none}
+#fab-me{bottom:14px;right:13px}
+#fab-style{bottom:62px;right:13px}
+
+/* TALHAO TOOLTIP */
+#talhao-box{background:rgba(26,58,26,.92);color:#fff;font-size:11px;padding:6px 11px;border-radius:9px;position:absolute;bottom:14px;left:50%;transform:translateX(-50%);z-index:5;display:none;white-space:nowrap;pointer-events:none;backdrop-filter:blur(4px)}
+#talhao-box .tb-faz{font-weight:700;font-size:12px}
+#talhao-box .tb-info{opacity:.8;margin-top:1px}
+
+/* STATUS */
+#status-bar{background:var(--gd);color:rgba(255,255,255,.7);font-size:10px;text-align:center;padding:3px 8px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* BOTTOM PANEL */
+.bottom{background:#fff;border-top:1px solid var(--bd);flex-shrink:0;height:255px;display:flex;flex-direction:column}
+.tabs{display:flex;border-bottom:1px solid var(--bd);flex-shrink:0}
+.tab{flex:1;padding:8px 2px;font-size:10px;font-weight:700;text-align:center;cursor:pointer;color:var(--mu);border:none;background:none;border-bottom:2.5px solid transparent}
+.tab.on{color:var(--gm);border-bottom-color:var(--gm)}
+.tc{display:none;overflow-y:auto;padding:9px 11px;flex:1;-webkit-overflow-scrolling:touch}
+.tc.on{display:block}
+
+/* LOC BOX */
+#loc-box{background:#e8f4e8;border:1px solid #b3d9b3;border-radius:8px;padding:7px 10px;margin-bottom:7px;display:none}
+#loc-box .lbt{font-weight:700;color:var(--gm);font-size:11px;margin-bottom:1px}
+#loc-box .lbi{color:#1a4a1a;font-size:10px;line-height:1.5}
+
+/* CATS & PESTS */
+.cats{display:flex;gap:5px;margin-bottom:7px;overflow-x:auto;padding-bottom:2px}
+.cats::-webkit-scrollbar{display:none}
+.chip{border:1px solid var(--bd);border-radius:14px;padding:3px 10px;font-size:11px;cursor:pointer;background:#fff;white-space:nowrap;flex-shrink:0;font-weight:600;color:var(--mu)}
+.chip.on{background:var(--gm);color:#fff;border-color:var(--gm)}
+.pg{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:7px}
+.pb{border:1.5px solid var(--bd);border-radius:9px;padding:7px 5px;cursor:pointer;background:#fff;text-align:center;position:relative;transition:border-color .15s}
+.pb:active{transform:scale(.96)}
+.pb.on{border-color:var(--gm);background:#f0f8f0}
+.pb .ic{font-size:19px;display:block;margin-bottom:2px}
+.pb .nm{font-size:10px;font-weight:700;line-height:1.2}
+.pb .sc{font-size:9px;color:var(--mu);font-style:italic}
+.pb .dot{position:absolute;top:4px;right:4px;width:7px;height:7px;border-radius:50%}
+.dh{background:#c0392b}.dm{background:#e8a020}.dl{background:#27ae60}
+
+/* SEV */
+.sr{display:flex;gap:5px;margin-bottom:7px}
+.sb{flex:1;border:1.5px solid var(--bd);border-radius:8px;padding:5px;text-align:center;cursor:pointer;font-size:11px;font-weight:700;background:#fff}
+.sb.ah{border-color:#b92929;background:#fff0f0;color:#b92929}
+.sb.am{border-color:#c87d00;background:#fffbf0;color:#c87d00}
+.sb.al{border-color:#1e8040;background:#f0fbf0;color:#1e8040}
+
+/* PHOTO */
+.photo-row{display:flex;align-items:center;gap:7px;margin-bottom:7px}
+.photo-btn{border:1.5px dashed var(--gm);border-radius:8px;padding:6px 10px;font-size:11px;color:var(--gm);cursor:pointer;background:none;font-weight:600}
+#photo-thumb{width:42px;height:42px;border-radius:7px;object-fit:cover;border:1px solid var(--bd);display:none}
+.plbl{font-size:10px;color:var(--mu)}
+textarea{width:100%;border:1px solid var(--bd);border-radius:8px;padding:6px 8px;font-size:12px;resize:none;font-family:inherit;height:44px;margin-bottom:7px;color:var(--tx)}
+.abtn{width:100%;padding:11px;background:var(--gm);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px}
+.abtn:disabled{background:#aaa;cursor:default}
+.gbtn{width:100%;margin-top:5px;padding:7px;border:1.5px dashed var(--gm);border-radius:8px;background:none;color:var(--gm);font-size:11px;font-weight:700;cursor:pointer}
+
+/* RECORDS */
+.ri{background:var(--cream);border-radius:8px;padding:7px 9px;display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;cursor:pointer}
+.rdot{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:2px}
+.rinfo{flex:1;min-width:0}
+.rnm{font-weight:700;font-size:11px}
+.rtag{color:#1a5a1a;font-size:10px;font-weight:600;margin-top:1px}
+.rlc{color:var(--mu);font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rtec{color:var(--blue);font-size:10px}
+.rtime{font-size:10px;color:var(--mu);white-space:nowrap;flex-shrink:0}
+.rphoto{width:32px;height:32px;border-radius:5px;object-fit:cover;flex-shrink:0}
+.rdel{background:none;border:none;color:#b92929;cursor:pointer;font-size:13px;padding:0 0 0 3px}
+.sync-icon{font-size:11px;flex-shrink:0}
+
+/* STATS */
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px}
+.sbox{background:var(--cream);border-radius:8px;padding:9px 7px;text-align:center}
+.sn{font-size:20px;font-weight:700;color:var(--gm)}
+.sl{font-size:10px;color:var(--mu);margin-top:1px}
+.egrid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:7px}
+.ebtn{border:1px solid var(--bd);border-radius:9px;padding:9px 5px;text-align:center;cursor:pointer;background:#fff}
+.ebtn:active{background:var(--cream)}
+.eic2{font-size:20px;display:block;margin-bottom:3px}
+.ebtn strong{display:block;font-size:11px;font-weight:700;margin-bottom:1px}
+.ebtn span{font-size:10px;color:var(--mu)}
+.elabel{font-size:10px;font-weight:700;color:var(--mu);margin-bottom:5px;letter-spacing:.4px}
+.ibtnw{width:100%;padding:8px;border:1.5px dashed #888;border-radius:8px;background:none;color:var(--mu);font-size:11px;font-weight:700;cursor:pointer;margin-top:3px}
+
+/* MODAL */
+.modal-wrap{display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.55);z-index:20;align-items:flex-end;justify-content:center}
+.modal-wrap.on{display:flex}
+.modal{background:#fff;border-radius:16px 16px 0 0;padding:18px 15px 30px;width:100%;max-width:480px}
+.modal h3{font-size:14px;font-weight:700;margin-bottom:11px}
+.modal input,.modal select{width:100%;border:1px solid var(--bd);border-radius:8px;padding:8px 10px;font-size:13px;margin-bottom:7px;font-family:inherit;color:var(--tx);background:#fff}
+.mrow{display:flex;gap:7px;margin-top:3px}
+.mrow button{flex:1;padding:10px;border-radius:9px;border:1px solid var(--bd);cursor:pointer;font-size:12px;font-weight:700;background:#fff;color:var(--tx)}
+.mrow .pri{background:var(--gm);color:#fff;border-color:var(--gm)}
+
+/* USER MODAL */
+#user-modal .modal{text-align:center;padding:24px 20px 32px}
+#user-modal .modal h3{font-size:16px;margin-bottom:6px}
+#user-modal .modal p{font-size:12px;color:var(--mu);margin-bottom:14px}
+#user-modal .modal input{font-size:15px;text-align:center;font-weight:600}
+
+/* MAP STYLE TOGGLE */
+#style-panel{position:absolute;bottom:110px;right:60px;z-index:5;background:#fff;border:1px solid var(--bd);border-radius:10px;padding:9px 12px;box-shadow:0 2px 10px rgba(0,0,0,.2);display:none}
+#style-panel h4{font-size:11px;font-weight:700;margin-bottom:6px;color:var(--mu)}
+.style-opt{display:flex;align-items:center;gap:7px;margin-bottom:4px;cursor:pointer;font-size:12px;padding:3px 0}
+.style-opt input{accent-color:var(--gm);width:14px;height:14px;cursor:pointer}
+
+.empty{text-align:center;padding:20px 14px;color:var(--mu);font-size:11px;line-height:1.7}
+input[type=file]{display:none}
+</style>
+</head>
+<body>
+
+<div id="header">
+  <div style="font-size:21px">🌲</div>
+  <div><h1>AgroMapa Pro</h1><p>Silvicultura · Tempo real</p></div>
+  <div class="gps-badge">
+    <div class="gpsdot blink" id="gpsdot"></div>
+    <span id="gpslbl">GPS...</span>
+  </div>
+</div>
+
+<div id="sync-bar">
+  <div id="sync-dot"></div>
+  <span id="sync-txt">Conectando ao servidor...</span>
+  <span id="user-badge" onclick="openUserModal()">👤 —</span>
+</div>
+
+<div id="offline-banner">⚡ Offline — registros salvos localmente, sincronização quando voltar</div>
+
+<div id="map-wrap">
+  <div id="map"></div>
+  <div class="fab" id="fab-me" onclick="goHome()">📍</div>
+  <div class="fab" id="fab-style" onclick="toggleStylePanel()">🗺️</div>
+  <div id="style-panel">
+    <h4>ESTILO DO MAPA</h4>
+    <label class="style-opt"><input type="radio" name="mstyle" value="satellite" onchange="setMapStyle(this.value)" checked> 🛰️ Satélite</label>
+    <label class="style-opt"><input type="radio" name="mstyle" value="streets" onchange="setMapStyle(this.value)"> 🗺️ Ruas</label>
+    <label class="style-opt"><input type="radio" name="mstyle" value="outdoors" onchange="setMapStyle(this.value)"> 🌄 Terreno</label>
+  </div>
+  <div id="talhao-box">
+    <div class="tb-faz" id="tb-faz"></div>
+    <div class="tb-info" id="tb-info"></div>
+  </div>
+</div>
+
+<div id="status-bar">Iniciando...</div>
+
+<div class="bottom">
+  <div class="tabs">
+    <button class="tab on" onclick="go('reg',0)">＋ Registrar</button>
+    <button class="tab" onclick="go('rec',1)">📋 Ocorr.</button>
+    <button class="tab" onclick="go('exp',2)">📤 Exportar</button>
+  </div>
+
+  <div class="tc on" id="tc-reg">
+    <div id="loc-box">
+      <div class="lbt">📍 Localização detectada</div>
+      <div class="lbi" id="loc-txt"></div>
+    </div>
+    <div class="cats" id="cat-row"></div>
+    <div class="pg" id="pgrid"></div>
+    <div style="font-size:10px;font-weight:700;color:var(--mu);margin-bottom:4px;letter-spacing:.4px">SEVERIDADE</div>
+    <div class="sr">
+      <div class="sb" id="sb-h" onclick="setSev('h')">🔴 Alta</div>
+      <div class="sb am" id="sb-m" onclick="setSev('m')">🟡 Média</div>
+      <div class="sb" id="sb-l" onclick="setSev('l')">🟢 Baixa</div>
+    </div>
+    <div class="photo-row">
+      <button class="photo-btn" onclick="document.getElementById('photo-in').click()">📷 Foto</button>
+      <img id="photo-thumb" alt="foto">
+      <span class="plbl" id="plbl">Opcional</span>
+      <input type="file" id="photo-in" accept="image/*" capture="environment" onchange="handlePhoto(this)">
+    </div>
+    <textarea id="notes" placeholder="Observações..."></textarea>
+    <button class="abtn" id="add-btn" onclick="addRec()" disabled>📍 Registrar no mapa</button>
+    <button class="gbtn" onclick="openModal()">＋ Nova praga personalizada</button>
+  </div>
+
+  <div class="tc" id="tc-rec">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <span style="font-size:11px;font-weight:700;color:var(--mu)">TODAS AS OCORRÊNCIAS</span>
+      <label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer">
+        <input type="checkbox" id="chk-myfaz" onchange="renderRec()" style="accent-color:var(--gm)">
+        Só minha fazenda
+      </label>
+    </div>
+    <div id="rec-list"></div>
+  </div>
+
+  <div class="tc" id="tc-exp">
+    <div class="sgrid" id="sgrid"></div>
+    <div class="elabel">EXPORTAR</div>
+    <div class="egrid">
+      <div class="ebtn" onclick="expCSV()"><span class="eic2">📊</span><strong>CSV</strong><span>Excel / planilha</span></div>
+      <div class="ebtn" onclick="expGeo()"><span class="eic2">🗺️</span><strong>GeoJSON</strong><span>QGIS / SIG</span></div>
+    </div>
+    <div class="egrid">
+      <div class="ebtn" onclick="expJSON()"><span class="eic2">🗂️</span><strong>JSON</strong><span>Backup local</span></div>
+      <div class="ebtn" onclick="expReport()"><span class="eic2">📄</span><strong>Relatório</strong><span>Texto / impressão</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: NOME DO TÉCNICO -->
+<div class="modal-wrap on" id="user-modal">
+  <div class="modal">
+    <h3>👷 Identificação do Técnico</h3>
+    <p>Seu nome aparecerá nos registros e será visto por toda a equipe</p>
+    <input type="text" id="user-name-input" placeholder="Seu nome (ex: João Silva)" maxlength="40" onkeydown="if(event.key==='Enter')saveUser()">
+    <div class="mrow">
+      <button class="pri" onclick="saveUser()">Entrar no app</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: NOVA PRAGA -->
+<div class="modal-wrap" id="pest-modal" onclick="if(event.target===this)closePestModal()">
+  <div class="modal">
+    <h3>➕ Nova praga personalizada</h3>
+    <input type="text" id="cp-nm" placeholder="Nome da praga *">
+    <input type="text" id="cp-sci" placeholder="Nome científico (opcional)">
+    <input type="text" id="cp-ic" placeholder="Emoji (ex: 🦋)" maxlength="4">
+    <select id="cp-cat"><option>Formigas</option><option>Lagartas</option><option>Besouros</option><option>Percevejos</option><option>Fungos</option><option>Outros</option></select>
+    <select id="cp-sev"><option value="high">🔴 Alta</option><option value="mid">🟡 Média</option><option value="low">🟢 Baixa</option></select>
+    <div class="mrow">
+      <button onclick="closePestModal()">Cancelar</button>
+      <button class="pri" onclick="saveCustom()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+//  CONFIGURAÇÃO — substitua com suas credenciais do Supabase
+// ============================================================
+const SUPABASE_URL  = 'https://sbgtfrcxnmmqjxhhdgcs.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNiZ3RmcmN4bm1tcWp4aGhkZ2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2NDA5NzcsImV4cCI6MjA5NTIxNjk3N30.hGeED7lDbsJtoaicACyd_JOhzG7lpt5CZti5a2kkjW8';
+
+const MAPBOX_TOKEN  = 'pk.eyJ1IjoiZGFuaWVsdG9nbm9uIiwiYSI6ImNtaTR6NHRuejJmMjYycnExMTI5eng0dGcifQ.JWDELWm5lVd3642Oaot49A';
+const TILESET_ID    = 'danieltognon.dfd0jjk7';
+
+// ============================================================
+//  PRAGAS
+// ============================================================
+const DP=[
+  {id:'fc',name:'Formiga Cortadeira',sci:'Atta spp.',ic:'🐜',cat:'Formigas',sev:'high'},
+  {id:'fq',name:'Formiga Quem-quem',sci:'Acromyrmex spp.',ic:'🐜',cat:'Formigas',sev:'mid'},
+  {id:'fs',name:'Formiga Saúva',sci:'Atta laevigata',ic:'🐜',cat:'Formigas',sev:'high'},
+  {id:'ll',name:'Lagarta Lonomia',sci:'Lonomia obliqua',ic:'🐛',cat:'Lagartas',sev:'high'},
+  {id:'la',name:'Lagarta-do-cartucho',sci:'Spodoptera frugiperda',ic:'🐛',cat:'Lagartas',sev:'high'},
+  {id:'lm',name:'Lagarta Medideira',sci:'Chrysodeixis includens',ic:'🐛',cat:'Lagartas',sev:'mid'},
+  {id:'bb',name:'Besouro Brocador',sci:'Hypothenemus spp.',ic:'🪲',cat:'Besouros',sev:'high'},
+  {id:'be',name:'Broca-do-eucalipto',sci:'Phoracantha semipunctata',ic:'🪲',cat:'Besouros',sev:'high'},
+  {id:'ps',name:'Psilídeo',sci:'Glycaspis brimblecombei',ic:'🦟',cat:'Percevejos',sev:'mid'},
+  {id:'pb',name:'Percevejo Bronzeado',sci:'Thaumastocoris peregrinus',ic:'🦗',cat:'Percevejos',sev:'high'},
+  {id:'pm',name:'Percevejo Marrom',sci:'Euschistus heros',ic:'🦗',cat:'Percevejos',sev:'mid'},
+  {id:'vm',name:'Vespa da Madeira',sci:'Sirex noctilio',ic:'🐝',cat:'Outros',sev:'high'},
+  {id:'ap',name:'Pulgão/Afídeo',sci:'Aphididae',ic:'🔴',cat:'Outros',sev:'low'},
+  {id:'co',name:'Cochonilha',sci:'Coccoidea',ic:'🟤',cat:'Outros',sev:'mid'},
+  {id:'fn',name:'Fungo Armilária',sci:'Armillaria spp.',ic:'🍄',cat:'Fungos',sev:'high'},
+  {id:'fr',name:'Ferrugem',sci:'Puccinia spp.',ic:'🍂',cat:'Fungos',sev:'mid'},
+  {id:'fc2',name:'Cancro Eucalipto',sci:'Chrysoporthe cubensis',ic:'🌿',cat:'Fungos',sev:'high'},
+  {id:'er',name:'Erinose',sci:'Eriophyidae',ic:'🌱',cat:'Outros',sev:'mid'},
+];
+function loadPests(){return[...DP,...JSON.parse(localStorage.getItem('am_cpests')||'[]')];}
+let pests=loadPests();
+
+// ============================================================
+//  ESTADO GLOBAL
+// ============================================================
+let recs=[];           // vindos do Supabase + fila offline
+let offlineQueue=JSON.parse(localStorage.getItem('am_offline')||'[]');
+let selP=null,selSev='m',photoData=null;
+let uLat=null,uLng=null,myMarker=null;
+let activeCat='Todos';
+let currentTalhao=null;
+let supaClient=null;
+let mapReady=false;
+let userName=localStorage.getItem('am_username')||'';
+let mapInstance=null;
+let markersMap={};   // id -> mapboxgl.Marker
+const CATS=['Todos','Formigas','Lagartas','Besouros','Percevejos','Fungos','Outros'];
+const SL={h:'Alta',m:'Média',l:'Baixa'};
+const SC={h:'#c0392b',m:'#e8a020',l:'#27ae60'};
+
+// ============================================================
+//  USER
+// ============================================================
+function openUserModal(){document.getElementById('user-modal').classList.add('on');setTimeout(()=>document.getElementById('user-name-input').focus(),100);}
+function saveUser(){
+  const nm=document.getElementById('user-name-input').value.trim();
+  if(!nm){alert('Informe seu nome.');return;}
+  userName=nm;localStorage.setItem('am_username',nm);
+  document.getElementById('user-modal').classList.remove('on');
+  document.getElementById('user-badge').textContent='👤 '+nm;
+}
+if(userName){
+  document.getElementById('user-modal').classList.remove('on');
+  document.getElementById('user-badge').textContent='👤 '+userName;
+  document.getElementById('user-name-input').value=userName;
+}
+
+// ============================================================
+//  SUPABASE
+// ============================================================
+function initSupabase(){
+  if(false){
+    setSyncStatus('warn','⚠️ Supabase não configurado — modo local');
+    loadLocalRecs();return;
+  }
+  try{
+    supaClient=supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
+    loadFromSupabase();
+    subscribeRealtime();
+  }catch(e){
+    setSyncStatus('err','Erro ao conectar Supabase');
+    loadLocalRecs();
+  }
+}
+
+async function loadFromSupabase(){
+  try{
+    const {data,error}=await supaClient.from('ocorrencias').select('*').order('created_at',{ascending:false}).limit(500);
+    if(error) throw error;
+    recs=data||[];
+    renderAllMarkers();
+    renderRec();
+    setSyncStatus('ok','🟢 Conectado · '+recs.length+' ocorrências');
+    // Sincronizar fila offline
+    if(offlineQueue.length) flushOfflineQueue();
+  }catch(e){
+    setSyncStatus('err','Sem conexão — dados locais');
+    loadLocalRecs();
+  }
+}
+
+function subscribeRealtime(){
+  if(!supaClient) return;
+  supaClient
+    .channel('ocorrencias-changes')
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'ocorrencias'},payload=>{
+      const rec=payload.new;
+      // Evitar duplicar o próprio registro
+      if(!recs.find(r=>r.id===rec.id)){
+        recs.unshift(rec);
+        addMarkerToMap(rec);
+        renderRec();
+        setSyncStatus('ok','🟢 Novo registro: '+rec.pest_name+' ('+rec.tecnico+')');
+      }
+    })
+    .on('postgres_changes',{event:'DELETE',schema:'public',table:'ocorrencias'},payload=>{
+      const id=payload.old.id;
+      recs=recs.filter(r=>r.id!==id);
+      if(markersMap[id]){markersMap[id].remove();delete markersMap[id];}
+      renderRec();
+    })
+    .subscribe(status=>{
+      if(status==='SUBSCRIBED') setSyncStatus('ok','🟢 Tempo real ativo');
+      if(status==='CHANNEL_ERROR') setSyncStatus('err','Erro de conexão');
+    });
+}
+
+async function saveToSupabase(rec){
+  if(!supaClient) return false;
+  try{
+    const {error}=await supaClient.from('ocorrencias').insert([rec]);
+    if(error) throw error;
+    return true;
+  }catch(e){
+    return false;
+  }
+}
+
+async function deleteFromSupabase(id){
+  if(!supaClient) return;
+  await supaClient.from('ocorrencias').delete().eq('id',id);
+}
+
+async function flushOfflineQueue(){
+  if(!supaClient||!offlineQueue.length) return;
+  const toSync=[...offlineQueue];
+  for(const rec of toSync){
+    const ok=await saveToSupabase(rec);
+    if(ok) offlineQueue=offlineQueue.filter(r=>r.id!==rec.id);
+  }
+  localStorage.setItem('am_offline',JSON.stringify(offlineQueue));
+  if(!offlineQueue.length) setSyncStatus('ok','🟢 Fila offline sincronizada!');
+}
+
+function loadLocalRecs(){
+  recs=JSON.parse(localStorage.getItem('am_recs')||'[]');
+  renderAllMarkers();renderRec();
+}
+
+function setSyncStatus(state,msg){
+  const dot=document.getElementById('sync-dot');
+  dot.className='';
+  if(state==='ok') dot.classList.add('ok');
+  else if(state==='err') dot.classList.add('err');
+  document.getElementById('sync-txt').textContent=msg;
+}
+
+// ============================================================
+//  MAPBOX
+// ============================================================
+const MAP_STYLES={
+  satellite:'mapbox://styles/mapbox/satellite-streets-v12',
+  streets:'mapbox://styles/mapbox/streets-v12',
+  outdoors:'mapbox://styles/mapbox/outdoors-v12',
+};
+
+function initMap(){
+  mapboxgl.accessToken=MAPBOX_TOKEN;
+  mapInstance=new mapboxgl.Map({
+    container:'map',
+    style:MAP_STYLES.satellite,
+    center:[-52.3,-18.5],
+    zoom:9,
+    attributionControl:false,
+  });
+  mapInstance.addControl(new mapboxgl.NavigationControl(),'top-right');
+
+  mapInstance.on('load',()=>{
+    mapReady=true;
+    addTalhaoLayer();
+    renderAllMarkers();
+    st('Mapa carregado');
+  });
+
+  // Hover nos talhões
+  mapInstance.on('mousemove','talhoes-fill',e=>{
+    const f=e.features[0];if(!f) return;
+    const p=f.properties;
+    mapInstance.getCanvas().style.cursor='pointer';
+    document.getElementById('tb-faz').textContent=p.NOME_FAZEN||p.f||'Fazenda';
+    document.getElementById('tb-info').textContent=
+      'Q'+( p.TAG_INST_Q||p.q||'—')+' · '+(p.NOM_INST||p.t||'—')+' · '+(p.AREA_TOTAL||p.a||'—')+' ha';
+    document.getElementById('talhao-box').style.display='block';
+  });
+  mapInstance.on('mouseleave','talhoes-fill',()=>{
+    mapInstance.getCanvas().style.cursor='';
+    document.getElementById('talhao-box').style.display='none';
+  });
+
+  // Click nos talhões
+  mapInstance.on('click','talhoes-fill',e=>{
+    const f=e.features[0];if(!f) return;
+    const p=f.properties;
+    currentTalhao={
+      f:p.NOME_FAZEN||p.f||'',
+      q:p.TAG_INST_Q||p.q||'',
+      t:p.NOM_INST||p.t||'',
+      a:p.AREA_TOTAL||p.a||'',
+      ap:p.AREA_PRODU||p.ap||'',
+      v:p.NRO_VARIED||p.v||'',
+    };
+    showLocBox(currentTalhao);
+    new mapboxgl.Popup({closeButton:true,maxWidth:'240px'})
+      .setLngLat(e.lngLat)
+      .setHTML(makeTalhaoPopup(currentTalhao))
+      .addTo(mapInstance);
+  });
+
+  // Fechar style panel ao clicar fora
+  document.addEventListener('click',e=>{
+    if(!e.target.closest('#style-panel')&&!e.target.closest('#fab-style'))
+      document.getElementById('style-panel').style.display='none';
+  });
+}
+
+function addTalhaoLayer(){
+  if(!mapReady) return;
+
+  // Fonte do Tileset Mapbox (Vector Tiles)
+  mapInstance.addSource('talhoes-src',{
+    type:'vector',
+    url:'mapbox://'+TILESET_ID,
+  });
+
+  // Camada de preenchimento por quadra
+  mapInstance.addLayer({
+    id:'talhoes-fill',
+    type:'fill',
+    source:'talhoes-src',
+    'source-layer': getTilesetLayerName(),
+    paint:{
+      'fill-color':[
+        'match',['%',['to-number',['coalesce',['get','TAG_INST_Q'],['get','q'],'0']],20],
+        0,'#2d7a2d',1,'#1a6bb5',2,'#c87d00',3,'#8e44ad',4,'#c0392b',
+        5,'#0e8074',6,'#d4860b',7,'#1a4a8a',8,'#5c8a00',9,'#8a3a00',
+        10,'#3a5a8a',11,'#6a2d8a',12,'#8a6a00',13,'#005a5a',14,'#8a0000',
+        15,'#005000',16,'#6a4a00',17,'#002a6a',18,'#4a004a',19,'#2a2a2a',
+        '#2d6a2d'
+      ],
+      'fill-opacity':0.45,
+    }
+  });
+
+  // Borda dos talhões
+  mapInstance.addLayer({
+    id:'talhoes-line',
+    type:'line',
+    source:'talhoes-src',
+    'source-layer': getTilesetLayerName(),
+    paint:{
+      'line-color':'#fff',
+      'line-width':0.6,
+      'line-opacity':0.7,
+    }
+  });
+
+  // Labels dos talhões (visível a partir do zoom 13)
+  mapInstance.addLayer({
+    id:'talhoes-label',
+    type:'symbol',
+    source:'talhoes-src',
+    'source-layer': getTilesetLayerName(),
+    minzoom:13,
+    layout:{
+      'text-field':['coalesce',['get','TAG_INST'],['get','tag'],''],
+      'text-size':10,
+      'text-allow-overlap':false,
+    },
+    paint:{
+      'text-color':'#fff',
+      'text-halo-color':'rgba(0,0,0,.6)',
+      'text-halo-width':1.5,
+    }
+  });
+}
+
+// Nome da camada vetorial dentro do tileset
+// O Mapbox usa o nome do arquivo source como layer-name
+function getTilesetLayerName(){
+  // Para tilesets criados via upload, o source-layer geralmente é o nome do arquivo sem extensão
+  // Como o tileset é 'danieltognon.dfd0jjk7', tentamos nomes comuns
+  // Você pode conferir no Mapbox Studio → tileset → "..." → "Inspect"
+  return 'FAZ_SHP_GO_GERAL'; // Ajuste se necessário após inspecionar no Studio
+}
+
+function makeTalhaoPopup(p){
+  return `<h4>🌳 ${p.t||'Talhão'}</h4>
+    <div class="prow"><span class="plbl">Fazenda</span><span class="pval">${p.f||'—'}</span></div>
+    <div class="prow"><span class="plbl">Quadra</span><span class="pval">${p.q||'—'}</span></div>
+    <div class="prow"><span class="plbl">Área total</span><span class="pval">${p.a||'—'} ha</span></div>
+    <div class="prow"><span class="plbl">Área prod.</span><span class="pval">${p.ap||'—'} ha</span></div>
+    ${p.v?`<div class="pvar">🌱 ${p.v}</div>`:''}`;
+}
+
+function setMapStyle(style){
+  if(!mapInstance) return;
+  mapInstance.setStyle(MAP_STYLES[style]);
+  mapInstance.once('style.load',()=>{
+    addTalhaoLayer();
+    renderAllMarkers();
+  });
+  document.getElementById('style-panel').style.display='none';
+}
+
+function toggleStylePanel(){
+  const p=document.getElementById('style-panel');
+  p.style.display=p.style.display==='block'?'none':'block';
+}
+
+// ============================================================
+//  GPS
+// ============================================================
+function requestGPS(){
+  if(!navigator.geolocation){useDemo('GPS não suportado');return;}
+  gpsDot('blink','Localizando...');
+  navigator.geolocation.watchPosition(pos=>{
+    uLat=pos.coords.latitude;uLng=pos.coords.longitude;
+    const acc=Math.round(pos.coords.accuracy);
+    gpsDot('','±'+acc+'m');
+    document.getElementById('gpsdot').style.background=acc<20?'#4caf50':acc<60?'#8bc34a':'#f39c12';
+    updateBtn();updateSt();
+    // Atualizar marcador "eu"
+    if(!myMarker){
+      const el=document.createElement('div');
+      el.style.cssText='width:14px;height:14px;border-radius:50%;background:#1a6bb5;border:3px solid #fff;box-shadow:0 0 0 4px rgba(26,107,181,.2)';
+      myMarker=new mapboxgl.Marker({element:el}).setLngLat([uLng,uLat]).addTo(mapInstance);
+      if(mapReady) mapInstance.flyTo({center:[uLng,uLat],zoom:13,duration:1500});
+    } else {
+      myMarker.setLngLat([uLng,uLat]);
+    }
+  },err=>{useDemo(err.code===1?'GPS negado':'Erro GPS');},{enableHighAccuracy:true,maximumAge:5000,timeout:15000});
+}
+
+function useDemo(reason){
+  uLat=-18.5+(Math.random()-.5)*.02;uLng=-52.3+(Math.random()-.5)*.02;
+  gpsDot('','Demo');document.getElementById('gpsdot').style.background='#f39c12';
+  document.getElementById('offline-banner').textContent='⚡ '+reason+' — modo demo';
+  document.getElementById('offline-banner').style.display='block';
+  updateBtn();
+  if(mapReady) mapInstance.flyTo({center:[uLng,uLat],zoom:12,duration:1000});
+}
+
+function goHome(){
+  if(uLat!==null&&mapReady) mapInstance.flyTo({center:[uLng,uLat],zoom:16,duration:1200});
+}
+
+// ============================================================
+//  REGISTRAR OCORRÊNCIA
+// ============================================================
+async function addRec(){
+  if(!selP||uLat===null) return;
+  const pest=pests.find(p=>p.id===selP);
+  if(!userName){openUserModal();return;}
+
+  const rec={
+    id: crypto.randomUUID(),
+    pest_id:   selP,
+    pest_name: pest.name,
+    pest_icon: pest.ic,
+    pest_cat:  pest.cat||'',
+    severity:  selSev,
+    lat: parseFloat((uLat+(Math.random()-.5)*.00015).toFixed(7)),
+    lng: parseFloat((uLng+(Math.random()-.5)*.00015).toFixed(7)),
+    notes:     document.getElementById('notes').value.trim(),
+    photo:     photoData,
+    tecnico:   userName,
+    fazenda:   currentTalhao?.f||'',
+    quadra:    currentTalhao?.q||'',
+    talhao:    currentTalhao?.t||'',
+    area_ha:   currentTalhao?.a||'',
+    variedade: currentTalhao?.v||'',
+    created_at: new Date().toISOString(),
+  };
+
+  // Adicionar localmente imediato (UX rápido)
+  recs.unshift(rec);
+  addMarkerToMap(rec);
+  renderRec();
+
+  // Tentar salvar no Supabase
+  const ok=await saveToSupabase(rec);
+  if(!ok){
+    offlineQueue.push(rec);
+    localStorage.setItem('am_offline',JSON.stringify(offlineQueue));
+    setSyncStatus('warn','⚠️ Salvo offline — sincronizará quando conectar');
+  } else {
+    setSyncStatus('ok','🟢 Registrado por '+userName);
+  }
+  // Salvar local também (fallback)
+  localStorage.setItem('am_recs',JSON.stringify(recs.slice(0,200)));
+
+  // Reset form
+  document.getElementById('notes').value='';
+  photoData=null;
+  document.getElementById('photo-thumb').style.display='none';
+  document.getElementById('plbl').textContent='Opcional';
+  document.getElementById('photo-in').value='';
+  st('✅ '+pest.name+' por '+userName+(rec.talhao?' em '+rec.talhao:''));
+  if(mapReady) mapInstance.flyTo({center:[rec.lng,rec.lat],zoom:16,duration:800});
+  go('rec',1);
+}
+
+// ============================================================
+//  MARKERS NO MAPA
+// ============================================================
+function renderAllMarkers(){
+  // Limpar existentes
+  Object.values(markersMap).forEach(m=>m.remove());
+  markersMap={};
+  if(!mapReady) return;
+  recs.forEach(r=>addMarkerToMap(r));
+}
+
+function addMarkerToMap(rec){
+  if(!mapReady) return;
+  const col=SC[rec.severity||rec.sev]||'#888';
+  const el=document.createElement('div');
+  el.style.cssText=`width:28px;height:28px;border-radius:50%;background:${col};border:3px solid #fff;display:flex;align-items:center;justify-content:center;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,.35);cursor:pointer`;
+  el.textContent=rec.pest_icon||rec.pestIcon||'🐜';
+
+  const sl=SL[rec.severity||rec.sev]||'—';
+  const bc=`background:${col}20;color:${col}`;
+  const ph=rec.photo&&rec.photo!=='__p__'?`<img src="${rec.photo}" alt="" style="width:100%;border-radius:6px;margin-top:6px;max-height:80px;object-fit:cover">`:'';
+  const tecDiv=rec.tecnico?`<div class="ptecnico">👷 ${rec.tecnico}</div>`:'';
+  const fazDiv=rec.fazenda?`<div class="prow"><span class="plbl">Fazenda</span><span class="pval">${rec.fazenda}</span></div>`:'';
+  const talDiv=rec.talhao?`<div class="prow"><span class="plbl">Talhão</span><span class="pval">Q${rec.quadra} · ${rec.talhao}</span></div>`:'';
+  const timeDiv=`<div class="prow"><span class="plbl">Data</span><span class="pval">${fmtTime(rec.created_at||rec.time)}</span></div>`;
+  const notesDiv=rec.notes?`<div class="prow"><span class="plbl">Obs.</span><span class="pval">${rec.notes}</span></div>`:'';
+
+  const popup=new mapboxgl.Popup({closeButton:true,maxWidth:'240px'})
+    .setHTML(`<h4>${rec.pest_icon||rec.pestIcon||''} ${rec.pest_name||rec.pestName}</h4>
+      ${fazDiv}${talDiv}${timeDiv}${notesDiv}
+      <span class="pbadge" style="${bc}">Severidade ${sl}</span>
+      ${tecDiv}${ph}`);
+
+  const marker=new mapboxgl.Marker({element:el})
+    .setLngLat([rec.lng,rec.lat])
+    .setPopup(popup)
+    .addTo(mapInstance);
+
+  markersMap[rec.id]=marker;
+}
+
+// ============================================================
+//  DETECÇÃO DE TALHÃO VIA GPS
+// ============================================================
+// Usamos queryRenderedFeatures do Mapbox — muito mais eficiente que ray casting manual
+function detectTalhaoAtGPS(){
+  if(!mapReady||uLat===null) return;
+  const pt=mapInstance.project([uLng,uLat]);
+  const feats=mapInstance.queryRenderedFeatures(pt,{layers:['talhoes-fill']});
+  if(feats.length){
+    const p=feats[0].properties;
+    currentTalhao={
+      f:p.NOME_FAZEN||p.f||'',
+      q:p.TAG_INST_Q||p.q||'',
+      t:p.NOM_INST||p.t||'',
+      a:p.AREA_TOTAL||p.a||'',
+      ap:p.AREA_PRODU||p.ap||'',
+      v:p.NRO_VARIED||p.v||'',
+    };
+    showLocBox(currentTalhao);
+  } else {
+    currentTalhao=null;
+    document.getElementById('loc-box').style.display='none';
+  }
+}
+
+function showLocBox(t){
+  document.getElementById('loc-box').style.display='block';
+  document.getElementById('loc-txt').innerHTML=
+    `<b>${t.f||'—'}</b><br>Quadra ${t.q||'—'} · ${t.t||'—'} · ${t.a||'—'} ha${t.v?' · 🌱 '+t.v:''}`;
+}
+
+// Checar talhão a cada vez que o mapa termina de mover
+// (queryRenderedFeatures só funciona com tiles visíveis)
+let talhaoCheckTimer=null;
+function scheduleTalhaoCheck(){
+  clearTimeout(talhaoCheckTimer);
+  talhaoCheckTimer=setTimeout(detectTalhaoAtGPS,400);
+}
+
+// ============================================================
+//  UI: PESTS / CATS
+// ============================================================
+function renderCats(){
+  document.getElementById('cat-row').innerHTML=CATS.map(c=>
+    `<div class="chip${c===activeCat?' on':''}" onclick="setCat('${c}')">${c}</div>`).join('');
+}
+function setCat(c){activeCat=c;renderCats();renderPests();}
+function renderPests(){
+  const f=activeCat==='Todos'?pests:pests.filter(p=>p.cat===activeCat);
+  document.getElementById('pgrid').innerHTML=f.map(p=>`
+    <div class="pb${selP===p.id?' on':''}" onclick="doSelP('${p.id}')">
+      <div class="dot ${p.sev==='high'?'dh':p.sev==='mid'?'dm':'dl'}"></div>
+      <span class="ic">${p.ic}</span><div class="nm">${p.name}</div><div class="sc">${p.sci||p.cat}</div>
+    </div>`).join('');
+}
+function doSelP(id){selP=id;renderPests();updateBtn();}
+function setSev(v){
+  selSev=v;
+  ['h','m','l'].forEach(s=>{const el=document.getElementById('sb-'+s);el.className='sb';if(s===v)el.classList.add(s==='h'?'ah':s==='m'?'am':'al');});
+}
+function updateBtn(){document.getElementById('add-btn').disabled=!(selP&&uLat!==null);}
+function handlePhoto(inp){
+  const file=inp.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const img=new Image();
+    img.onload=()=>{
+      const c=document.createElement('canvas');const M=800;
+      let w=img.width,h=img.height;
+      if(w>M){h=Math.round(h*M/w);w=M;}if(h>M){w=Math.round(w*M/h);h=M;}
+      c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);
+      photoData=c.toDataURL('image/jpeg',.72);
+      const t=document.getElementById('photo-thumb');t.src=photoData;t.style.display='block';
+      document.getElementById('plbl').textContent='✓ Foto';
+    };img.src=e.target.result;
+  };reader.readAsDataURL(file);
+}
+
+// ============================================================
+//  LISTA DE OCORRÊNCIAS
+// ============================================================
+function renderRec(){
+  const el=document.getElementById('rec-list');
+  const myFaz=document.getElementById('chk-myfaz')?.checked;
+  let list=recs;
+  if(myFaz&&currentTalhao?.f) list=recs.filter(r=>r.fazenda===currentTalhao.f);
+  if(!list.length){el.innerHTML='<div class="empty">📋 Sem ocorrências.<br>Use a aba Registrar.</div>';return;}
+  el.innerHTML=list.slice(0,80).map(r=>{
+    const col=SC[r.severity||r.sev]||'#888';
+    const isMe=r.tecnico===userName;
+    const hp=r.photo&&r.photo!=='__p__';
+    const offline=offlineQueue.find(q=>q.id===r.id);
+    return `<div class="ri" onclick="flyToRec(${r.lat},${r.lng})">
+      <div class="rdot" style="background:${col}"></div>
+      <div class="rinfo">
+        <div class="rnm">${r.pest_icon||r.pestIcon||''} ${r.pest_name||r.pestName}</div>
+        ${r.talhao?`<div class="rtag">🌾 ${r.fazenda||''} · Q${r.quadra} · ${r.talhao}</div>`:''}
+        <div class="rlc">${r.lat.toFixed(4)}, ${r.lng.toFixed(4)}${r.notes?' · '+r.notes.slice(0,22):''}</div>
+        <div class="rtec">👷 ${r.tecnico||'—'}</div>
+      </div>
+      ${hp?`<img class="rphoto" src="${r.photo}" alt="">`:''}
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0">
+        <span class="rtime">${fmtTime(r.created_at||r.time)}</span>
+        ${offline?'<span style="font-size:9px;color:#c87d00">⏳offline</span>':'<span style="font-size:9px;color:#27ae60">✓sync</span>'}
+        ${isMe?`<button class="rdel" onclick="delRec('${r.id}',event)">✕</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function flyToRec(lat,lng){
+  if(mapReady) mapInstance.flyTo({center:[lng,lat],zoom:17,duration:800});
+}
+
+async function delRec(id,e){
+  e.stopPropagation();if(!confirm('Excluir?'))return;
+  recs=recs.filter(r=>r.id!==id);
+  if(markersMap[id]){markersMap[id].remove();delete markersMap[id];}
+  renderRec();
+  await deleteFromSupabase(id);
+  localStorage.setItem('am_recs',JSON.stringify(recs.slice(0,200)));
+  st('Excluído.');
+}
+
+// ============================================================
+//  STATS / EXPORT
+// ============================================================
+function renderStats(){
+  const sH=recs.filter(r=>(r.severity||r.sev)==='h').length;
+  const tipos=new Set(recs.map(r=>r.pest_id||r.pestId)).size;
+  const tecs=new Set(recs.map(r=>r.tecnico).filter(Boolean)).size;
+  document.getElementById('sgrid').innerHTML=`
+    <div class="sbox"><div class="sn">${recs.length}</div><div class="sl">Ocorrências</div></div>
+    <div class="sbox"><div class="sn" style="color:#b92929">${sH}</div><div class="sl">Sev. Alta</div></div>
+    <div class="sbox"><div class="sn" style="color:var(--blue)">${tipos}</div><div class="sl">Espécies</div></div>
+    <div class="sbox"><div class="sn" style="color:#7b4f00">${tecs}</div><div class="sl">Técnicos</div></div>`;
+}
+
+function go(id,idx){
+  document.querySelectorAll('.tc').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById('tc-'+id).classList.add('on');
+  document.querySelectorAll('.tab')[idx].classList.add('on');
+  if(id==='rec')renderRec();
+  if(id==='exp')renderStats();
+}
+
+function fmtTime(v){
+  if(!v) return '—';
+  try{return new Date(v).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}
+  catch(e){return String(v);}
+}
+
+function dstr(){return new Date().toISOString().slice(0,10).replace(/-/g,'');}
+function dl(fn,mime,cnt){const b=new Blob([cnt],{type:mime});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=fn;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);}
+
+function expCSV(){
+  const rows=[['ID','Data','Técnico','Praga','Categoria','Severidade','Fazenda','Quadra','Talhão','Área_ha','Variedade','Latitude','Longitude','Observações']];
+  recs.forEach(r=>rows.push([r.id,fmtTime(r.created_at||r.time),r.tecnico||'',r.pest_name||r.pestName||'',r.pest_cat||'',SL[r.severity||r.sev]||'',r.fazenda||'',r.quadra||'',r.talhao||'',r.area_ha||'',r.variedade||'',r.lat.toFixed(7),r.lng.toFixed(7),(r.notes||'').replace(/[",\n]/g,' ')]));
+  dl('agromapa_'+dstr()+'.csv','text/csv;charset=utf-8','\uFEFF'+rows.map(r=>r.map(c=>`"${c}"`).join(',')).join('\r\n'));
+}
+
+function expGeo(){
+  const feats=recs.map(r=>({type:'Feature',geometry:{type:'Point',coordinates:[r.lng,r.lat]},properties:{praga:r.pest_name||r.pestName,tecnico:r.tecnico||'',severidade:SL[r.severity||r.sev]||'',fazenda:r.fazenda||'',quadra:r.quadra||'',talhao:r.talhao||'',data:fmtTime(r.created_at||r.time),observacoes:r.notes||''}}));
+  dl('agromapa_'+dstr()+'.geojson','application/geo+json',JSON.stringify({type:'FeatureCollection',features:feats},null,2));
+}
+
+function expJSON(){
+  dl('agromapa_backup_'+dstr()+'.json','application/json',JSON.stringify({app:'AgroMapa Pro',versao:'4.0',exportado:new Date().toISOString(),ocorrencias:recs},null,2));
+}
+
+function expReport(){
+  const L='─'.repeat(45);
+  let t='RELATÓRIO — AgroMapa Pro\n'+new Date().toLocaleString('pt-BR')+'\n'+'='.repeat(45)+'\n\n';
+  t+=`Ocorrências: ${recs.length} | Alta: ${recs.filter(r=>(r.severity||r.sev)==='h').length} | Média: ${recs.filter(r=>(r.severity||r.sev)==='m').length} | Baixa: ${recs.filter(r=>(r.severity||r.sev)==='l').length}\n\n`;
+  const fm={};recs.forEach(r=>{const f=r.fazenda||'(sem fazenda)';(fm[f]=fm[f]||[]).push(r);});
+  Object.entries(fm).sort().forEach(([f,rs])=>{
+    t+=`\n🌾 ${f}\n${L}\n`;
+    const tm={};rs.forEach(r=>{const k=r.talhao||'—';(tm[k]=tm[k]||[]).push(r);});
+    Object.entries(tm).sort().forEach(([tl,trs])=>{
+      t+=`  ${tl}:\n`;
+      trs.forEach(r=>{t+=`    [${(SL[r.severity||r.sev]||'').toUpperCase()}] ${r.pest_name||r.pestName} · ${r.tecnico||'—'} · ${fmtTime(r.created_at||r.time)}\n`;});
+    });
+  });
+  dl('relatorio_'+dstr()+'.txt','text/plain;charset=utf-8',t);
+}
+
+// ============================================================
+//  CUSTOM PEST
+// ============================================================
+function openModal(){document.getElementById('pest-modal').classList.add('on');document.getElementById('cp-nm').focus();}
+function closePestModal(){document.getElementById('pest-modal').classList.remove('on');}
+function saveCustom(){
+  const nm=document.getElementById('cp-nm').value.trim();if(!nm){alert('Informe o nome.');return;}
+  const p={id:'c_'+Date.now(),name:nm,sci:document.getElementById('cp-sci').value.trim(),ic:document.getElementById('cp-ic').value.trim()||'🌿',cat:document.getElementById('cp-cat').value,sev:document.getElementById('cp-sev').value,custom:true};
+  const cp=JSON.parse(localStorage.getItem('am_cpests')||'[]');cp.push(p);localStorage.setItem('am_cpests',JSON.stringify(cp));
+  pests=loadPests();closePestModal();renderCats();renderPests();
+  alert('Praga "'+nm+'" adicionada!');
+  ['cp-nm','cp-sci','cp-ic'].forEach(id=>document.getElementById(id).value='');
+}
+
+// ============================================================
+//  HELPERS
+// ============================================================
+function gpsDot(cls,txt){
+  const d=document.getElementById('gpsdot');d.className='gpsdot '+cls;
+  document.getElementById('gpslbl').textContent=txt;
+}
+function st(m){document.getElementById('status-bar').textContent=m;}
+function updateSt(){
+  if(uLat!==null) st('GPS: '+uLat.toFixed(5)+', '+uLng.toFixed(5)+(currentTalhao?' · '+currentTalhao.t:''));
+}
+
+// ============================================================
+//  OFFLINE / ONLINE
+// ============================================================
+window.addEventListener('online',()=>{
+  document.getElementById('offline-banner').style.display='none';
+  flushOfflineQueue();
+  loadFromSupabase();
+});
+window.addEventListener('offline',()=>{
+  document.getElementById('offline-banner').style.display='block';
+  document.getElementById('offline-banner').textContent='⚡ Sem internet — registros serão sincronizados ao reconectar';
+  setSyncStatus('err','Offline');
+});
+if(!navigator.onLine){document.getElementById('offline-banner').style.display='block';}
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
+
+// ============================================================
+//  INIT
+// ============================================================
+initMap();
+renderCats();renderPests();
+requestGPS();
+initSupabase();
+
+// Checar talhão quando mapa parar de mover
+setTimeout(()=>{
+  if(mapInstance){
+    mapInstance.on('moveend',scheduleTalhaoCheck);
+    mapInstance.on('zoomend',scheduleTalhaoCheck);
+  }
+},2000);
+</script>
+</body>
+</html>
