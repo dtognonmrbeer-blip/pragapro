@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#1a3a1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="AgroMapa">
+<meta name="apple-mobile-web-app-title" content="PragaPro Cbio">
 <title>PragaPro Cbio</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -211,7 +211,7 @@ input[type=file]{display:none}
 <!-- HEADER -->
 <div id="header">
   <div style="font-size:20px">🌲</div>
-  <div><h1>PragaPro</h1><p>Silvicultura · Tempo real</p></div>
+  <div><h1>PragaPro Cbio</h1><p>Mapeamento de Pragas</p></div>
   <div class="gps-badge">
     <div class="gpsdot blink" id="gpsdot"></div>
     <span id="gpslbl">GPS...</span>
@@ -559,39 +559,89 @@ function setSyncStatus(state,msg){
 }
 
 // ============================================================
-//  FILTRO FAZENDA (TAG_INST_F)
+//  FILTRO FAZENDA (TAG_INST_F) — lê direto do tileset
 // ============================================================
+
+// Coletar fazendas únicas do tileset quando o mapa carregar
+// Usa queryRenderedFeatures em zoom baixo para cobrir muitos talhões
+function buildFilterFromTileset(){
+  if(!mapReady) return;
+  // Tentar múltiplos zooms para coletar o máximo de features
+  const tryCollect = () => {
+    const feats = mapInstance.queryRenderedFeatures({layers:['talhoes-fill']});
+    const cods = [...new Set(
+      feats.map(f => f.properties.TAG_INST_F || f.properties.cf || '')
+           .filter(Boolean)
+    )].sort();
+    if(cods.length > 0) populateFilter(cods);
+  };
+  // Tentar imediatamente e após renderização completa
+  setTimeout(tryCollect, 500);
+  setTimeout(tryCollect, 1500);
+  setTimeout(tryCollect, 3000);
+}
+
+// Também mescla cod_faz dos registros existentes (fallback)
 function buildFilterOptions(){
-  const sel=document.getElementById('faz-filter');
-  const current=sel.value;
-  const fazendas=[...new Set(recs.map(r=>r.cod_faz||'').filter(Boolean))].sort();
-  sel.innerHTML='<option value="">— todas —</option>'+fazendas.map(f=>`<option value="${f}">${f}</option>`).join('');
-  if(current) sel.value=current;
-  // Também filtrar no mapa ao carregar
-  applyMapFilter(activeFilter);
+  const fromRecs = [...new Set(recs.map(r=>r.cod_faz||'').filter(Boolean))].sort();
+  if(fromRecs.length > 0) populateFilter(fromRecs);
+  // Tileset tem prioridade — será chamado quando mapa carregar
+  buildFilterFromTileset();
+}
+
+function populateFilter(fazendas){
+  const sel = document.getElementById('faz-filter');
+  const current = sel.value;
+  // Mesclar com opções já existentes
+  const existing = [...sel.options].map(o=>o.value).filter(Boolean);
+  const all = [...new Set([...existing, ...fazendas])].sort();
+  sel.innerHTML = '<option value="">— todas —</option>' +
+    all.map(f=>`<option value="${f}">${f}</option>`).join('');
+  if(current) sel.value = current;
 }
 
 function applyFilter(){
-  activeFilter=document.getElementById('faz-filter').value;
-  document.getElementById('btn-clear-filter').style.display=activeFilter?'block':'none';
+  activeFilter = document.getElementById('faz-filter').value;
+  document.getElementById('btn-clear-filter').style.display = activeFilter ? 'block' : 'none';
   applyMapFilter(activeFilter);
   renderRec();
-  // Voar para a fazenda se selecionar
-  if(activeFilter&&mapReady){
-    const feats=mapInstance.querySourceFeatures('talhoes-src',{sourceLayer:TILESET_LAYER,filter:['==',['get','TAG_INST_F'],activeFilter]});
+  // Voar para a fazenda selecionada
+  if(activeFilter && mapReady){
+    // Primeiro tenta querySourceFeatures (funciona se tiles já baixados)
+    const feats = mapInstance.querySourceFeatures('talhoes-src',{
+      sourceLayer: TILESET_LAYER,
+      filter: ['==',['get','TAG_INST_F'], activeFilter]
+    });
     if(feats.length){
-      const coords=feats.flatMap(f=>{
-        const g=f.geometry;
-        if(g.type==='Polygon') return g.coordinates[0];
-        if(g.type==='MultiPolygon') return g.coordinates.flat(2);
-        return[];
-      });
-      if(coords.length){
-        const lons=coords.map(c=>c[0]),lats=coords.map(c=>c[1]);
-        mapInstance.fitBounds([[Math.min(...lons),Math.min(...lats)],[Math.max(...lons),Math.max(...lats)]],{padding:40,duration:1000});
+      zoomToFeatures(feats);
+    } else {
+      // Fallback: usar coordenadas dos registros daquela fazenda
+      const pts = recs.filter(r=>r.cod_faz===activeFilter);
+      if(pts.length){
+        const lats=pts.map(r=>r.lat), lngs=pts.map(r=>r.lng);
+        mapInstance.fitBounds(
+          [[Math.min(...lngs)-0.05, Math.min(...lats)-0.05],
+           [Math.max(...lngs)+0.05, Math.max(...lats)+0.05]],
+          {padding:40, duration:1000}
+        );
       }
     }
   }
+}
+
+function zoomToFeatures(feats){
+  const coords = feats.flatMap(f=>{
+    const g = f.geometry;
+    if(g.type==='Polygon') return g.coordinates[0];
+    if(g.type==='MultiPolygon') return g.coordinates.flat(2);
+    return [];
+  });
+  if(!coords.length) return;
+  const lons=coords.map(c=>c[0]), lats=coords.map(c=>c[1]);
+  mapInstance.fitBounds(
+    [[Math.min(...lons), Math.min(...lats)],[Math.max(...lons), Math.max(...lats)]],
+    {padding:40, duration:1000}
+  );
 }
 
 function clearFilter(){
@@ -604,9 +654,9 @@ function clearFilter(){
 
 function applyMapFilter(faz){
   if(!mapReady) return;
-  const filter=faz?['==',['get','TAG_INST_F'],faz]:null;
+  const filter = faz ? ['==',['get','TAG_INST_F'], faz] : null;
   ['talhoes-fill','talhoes-line','talhoes-label'].forEach(l=>{
-    if(mapInstance.getLayer(l)) mapInstance.setFilter(l,filter);
+    if(mapInstance.getLayer(l)) mapInstance.setFilter(l, filter);
   });
 }
 
@@ -630,6 +680,9 @@ function initMap(){
     renderAllMarkers();
     applyMapFilter(activeFilter);
     st('Mapa carregado');
+    // Coletar fazendas do tileset após tiles renderizarem
+    mapInstance.once('idle', buildFilterFromTileset);
+    mapInstance.on('moveend', buildFilterFromTileset);
   });
 
   mapInstance.on('mousemove','talhoes-fill',e=>{
@@ -1002,18 +1055,18 @@ function dl(fn,mime,cnt){const b=new Blob([cnt],{type:mime});const u=URL.createO
 function expCSV(){
   const rows=[['#ID','Data','Técnico','Praga','Categoria','Severidade','Ação','Status','Concluído por','Fazenda','Cód.Faz','Quadra','Talhão','Área_ha','Variedade','Latitude','Longitude','Observações']];
   recs.forEach(r=>rows.push([r.seq_id||'',fmtTime(r.created_at||r.time),r.tecnico||'',r.pest_name||'',r.pest_cat||'',SL[r.severity||r.sev]||'',r.acao||'',r.status||'',r.concluido_por||'',r.fazenda||'',r.cod_faz||'',r.quadra||'',r.talhao||'',r.area_ha||'',r.variedade||'',r.lat.toFixed(7),r.lng.toFixed(7),(r.notes||'').replace(/[",\n]/g,' ')]));
-  dl('agromapa_'+dstr()+'.csv','text/csv;charset=utf-8','\uFEFF'+rows.map(r=>r.map(c=>`"${c}"`).join(',')).join('\r\n'));
+  dl('pragapro_'+dstr()+'.csv','text/csv;charset=utf-8','\uFEFF'+rows.map(r=>r.map(c=>`"${c}"`).join(',')).join('\r\n'));
 }
 function expGeo(){
   const feats=recs.map(r=>({type:'Feature',geometry:{type:'Point',coordinates:[r.lng,r.lat]},properties:{seq_id:r.seq_id,praga:r.pest_name||'',tecnico:r.tecnico||'',severidade:SL[r.severity||r.sev]||'',acao:r.acao||'',status:r.status||'',fazenda:r.fazenda||'',cod_faz:r.cod_faz||'',quadra:r.quadra||'',talhao:r.talhao||'',data:fmtTime(r.created_at||r.time),observacoes:r.notes||''}}));
-  dl('agromapa_'+dstr()+'.geojson','application/geo+json',JSON.stringify({type:'FeatureCollection',features:feats},null,2));
+  dl('pragapro_'+dstr()+'.geojson','application/geo+json',JSON.stringify({type:'FeatureCollection',features:feats},null,2));
 }
 function expJSON(){
-  dl('agromapa_backup_'+dstr()+'.json','application/json',JSON.stringify({app:'AgroMapa Pro',versao:'5.0',exportado:new Date().toISOString(),ocorrencias:recs},null,2));
+  dl('pragapro_backup_'+dstr()+'.json','application/json',JSON.stringify({app:'PragaPro Cbio',versao:'5.0',exportado:new Date().toISOString(),ocorrencias:recs},null,2));
 }
 function expReport(){
   const L='─'.repeat(45);
-  let t='RELATÓRIO — AgroMapa Pro\n'+new Date().toLocaleString('pt-BR')+'\n'+'='.repeat(45)+'\n\n';
+  let t='RELATÓRIO — PragaPro Cbio\n'+new Date().toLocaleString('pt-BR')+'\n'+'='.repeat(45)+'\n\n';
   const pending=recs.filter(r=>r.status==='pendente').length;
   t+=`Total: ${recs.length} | Alta: ${recs.filter(r=>(r.severity||r.sev)==='h').length} | Pendentes: ${pending} | Concluídos: ${recs.length-pending}\n\n`;
   const fm={};recs.forEach(r=>{const f=(r.fazenda||'(sem fazenda)')+' ['+(r.cod_faz||'')+']';(fm[f]=fm[f]||[]).push(r);});
