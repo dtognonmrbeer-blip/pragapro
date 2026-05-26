@@ -549,7 +549,7 @@ async function doLogin(){
   err.style.display='none';
   loading.style.display='block';
   try{
-    const email=u+'@pragapro.cbio';
+    const email=u+'@pragapro.com';
     const {data,error}=await supaClient.auth.signInWithPassword({email,password:p});
     if(error) throw error;
     const user=data.user;
@@ -591,7 +591,7 @@ async function checkSession(){
   initSupabase();
   const {data:{session}}=await supaClient.auth.getSession();
   if(session){
-    const u=session.user.email.replace('@pragapro.cbio','');
+    const u=session.user.email.replace('@pragapro.com','');
     const {data:profile}=await supaClient.from('tecnicos').select('*').eq('login',u).single();
     currentUser={id:session.user.id,login:u,email:session.user.email,role:profile?.role||'tecnico',nome:profile?.nome||u,sobrenome:profile?.sobrenome||''};
     isSupervisor=SUPERVISORS.includes(u);
