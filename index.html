@@ -1109,7 +1109,25 @@ function updateSt(){if(uLat!==null) st('GPS: '+uLat.toFixed(5)+', '+uLng.toFixed
 window.addEventListener('online',()=>{document.getElementById('offline-banner').style.display='none';loadFromSupabase();});
 window.addEventListener('offline',()=>{document.getElementById('offline-banner').style.display='block';setSyncStatus('err','Offline');});
 if(!navigator.onLine) document.getElementById('offline-banner').style.display='block';
-if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+if('serviceWorker' in navigator){
+  window.addEventListener('load', async () => {
+    try {
+      const reg = await navigator.serviceWorker.register('sw.js');
+      // Forçar atualização imediata do SW se houver nova versão
+      reg.addEventListener('updatefound', () => {
+        const newSW = reg.installing;
+        newSW.addEventListener('statechange', () => {
+          if(newSW.state === 'installed' && navigator.serviceWorker.controller){
+            newSW.postMessage({type:'SKIP_WAITING'});
+          }
+        });
+      });
+      console.log('[App] Service Worker registrado — offline habilitado');
+    } catch(e) {
+      console.warn('[App] SW não disponível:', e);
+    }
+  });
+}
 </script>
 </body>
 </html>
