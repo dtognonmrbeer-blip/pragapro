@@ -848,12 +848,24 @@ async function addRec(){
 
   // Salvar no Supabase
   if(supaClient){
-    const {error}=await supaClient.from('ocorrencias').insert([rec]);
+    const {data:inserted,error}=await supaClient.from('ocorrencias').insert([rec]).select();
     if(error){
       offlineQueue.push(rec);
       localStorage.setItem('am_offline',JSON.stringify(offlineQueue));
-      setSyncStatus('warn','⚠️ Salvo offline');
+      setSyncStatus('warn','⚠️ Salvo offline — sincronizará ao reconectar');
     } else {
+      // Atualizar com created_at e seq_id reais do banco
+      if(inserted && inserted[0]){
+        const saved=inserted[0];
+        const idx=recs.findIndex(r=>r.id===rec.id);
+        if(idx>=0){
+          recs[idx].created_at=saved.created_at;
+          recs[idx].seq_id=saved.seq_id;
+          seqCounter=saved.seq_id;
+          if(mapReady&&markersMap[saved.id]){markersMap[saved.id].remove();delete markersMap[saved.id];addMarkerToMap(recs[idx]);}
+        }
+        renderRec();
+      }
       setSyncStatus('ok','🟢 #'+rec.seq_id+' registrado por '+rec.tecnico);
     }
   }
@@ -1045,9 +1057,12 @@ function go(id,idx){
 }
 
 function fmtTime(v){
-  if(!v) return '—';
-  try{return new Date(v).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}
-  catch(e){return String(v);}
+  if(!v||v==='null'||v==='undefined') return '—';
+  try{
+    const d=new Date(v);
+    if(isNaN(d.getTime())) return String(v);
+    return d.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
+  }catch(e){return String(v);}
 }
 function dstr(){return new Date().toISOString().slice(0,10).replace(/-/g,'');}
 function dl(fn,mime,cnt){const b=new Blob([cnt],{type:mime});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=fn;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);}
